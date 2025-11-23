@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Hasil SPK – AHP + TOPSIS</title>
+
+  <!-- Apply saved theme -->
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('theme') || 'light';
+        if (saved === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <style>
+    body { font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    table { border-collapse: collapse; width: 100%; font-size: 12px; }
+    th, td { border: 1px solid #e2e8f0; padding: 4px 6px; text-align: center; }
+    th { background-color: #f1f5f9; }
+    .ok { color: #16a34a; }
+    .bad { color: #dc2626; }
+
+    .dark body {
+      background-color: #020617;
+      color: #e5e7eb;
+    }
+    .dark .bg-slate-50 {
+      background-color: #020617 !important;
+    }
+    .dark .bg-white {
+      background-color: #020617 !important;
+    }
+    .dark .text-slate-900 {
+      color: #e5e7eb !important;
+    }
+    .dark .text-slate-700 {
+      color: #cbd5f5 !important;
+    }
+    .dark .text-slate-600 {
+      color: #9ca3af !important;
+    }
+    .dark .text-slate-500 {
+      color: #6b7280 !important;
+    }
+    .dark .border-slate-200,
+    .dark .border-slate-300 {
+      border-color: #1f2937 !important;
+    }
+    .dark .bg-slate-100 {
+      background-color: #020617 !important;
+    }
+    .dark th {
+      background-color: #0b1120 !important;
+    }
+    .dark td {
+      border-color: #1f2937 !important;
+    }
+    .dark .shadow-sm {
+      box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.9), 0 1px 2px -1px rgba(15, 23, 42, 0.9) !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50">
+
+  <!-- THEME TOGGLE BUTTON -->
+  <button
+    id="theme-toggle"
+    type="button"
+    class="fixed z-50 top-4 right-4 inline-flex items-center justify-center rounded-full
+           border border-slate-300 bg-white/80 px-2.5 py-2 shadow-sm hover:bg-slate-100
+           backdrop-blur-sm transition"
+    aria-label="Toggle theme">
+    <span id="icon-moon" class="hidden">
+      <!-- Moon -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12.058 20q-3.334 0-5.667-2.333T4.058 12q0-3.039 1.98-5.27t4.904-2.634q.081 0 .159.006t.153.017q-.506.706-.801 1.57T10.158 7.5q0 2.667 1.866 4.533t4.534 1.867q.951 0 1.813-.295t1.548-.801q.012.075.017.153t.006.159q-.384 2.923-2.615 4.903T12.057 20"/>
+      </svg>
+    </span>
+    <span id="icon-sun" class="hidden">
+      <!-- Sun -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 16q-1.671 0-2.835-1.164Q8 13.67 8 12t1.165-2.835T12 8t2.836 1.165T16 12t-1.164 2.836T12 16m-7-3.5H1.5v-1H5zm17.5 0H19v-1h3.5zM11.5 5V1.5h1V5zm0 17.5V19h1v3.5zM6.746 7.404l-2.16-2.098l.695-.745l2.111 2.135zM18.72 19.439l-2.117-2.141l.652-.702l2.16 2.098zM16.596 6.745l2.098-2.16l.745.695l-2.135 2.111zM4.562 18.72l2.14-2.117l.664.652l-2.08 2.179z"/>
+      </svg>
+    </span>
+  </button>
+
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <header class="mb-6 flex items-center justify-between gap-3">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-semibold text-slate-900">
+          Hasil Perhitungan SPK – AHP + TOPSIS
+        </h1>
+        <p class="mt-1 text-xs md:text-sm text-slate-600">
+          Ringkasan bobot AHP, hasil clustering K-Means, dan (jika konsisten) ranking TOPSIS
+          untuk mahasiswa dengan label kebutuhan bimbingan tinggi.
+        </p>
+      </div>
+      <a href="{{ url_for('index') }}"
+        class="inline-flex items-center text-xs md:text-sm font-medium text-slate-700
+                border border-slate-300 rounded-full px-3 py-1.5 bg-white hover:bg-slate-50">
+        ← Kembali ke input AHP
+      </a>
+    </header>
+
+    <!-- Ringkasan AHP -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 mb-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">Ringkasan AHP</h2>
+      <p class="text-xs md:text-sm text-slate-700 mb-3">
+        λ<sub>max</sub> = {{ "%.4f"|format(lambda_max) }}<br>
+        CI = {{ "%.6f"|format(CI) }}<br>
+        CR = {{ "%.6f"|format(CR) }}
+        {% if CR < 0.1 %}
+          <span class="ok text-xs font-semibold">(konsisten &lt; 0.1)</span>
+        {% else %}
+          <span class="bad text-xs font-semibold">(tidak konsisten &ge; 0.1 – bobot AHP tidak dapat digunakan untuk TOPSIS)</span>
+        {% endif %}
+      </p>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full mb-2">
+          <thead>
+            <tr>
+              <th class="px-2 py-2">Kriteria</th>
+              <th class="px-2 py-2">Bobot AHP</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for w in ahp_weights %}
+              <tr class="odd:bg-white even:bg-slate-50">
+                <td class="px-2 py-1 text-left">{{ w.label }}</td>
+                <td class="px-2 py-1">{{ "%.4f"|format(w.weight) }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if ahp_inconsistent %}
+      <div class="mt-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+        Consistency Ratio (CR) &ge; 0.1 sehingga matriks AHP dianggap tidak konsisten.
+        Silakan perbaiki nilai perbandingan berpasangan (AHP) agar CR &lt; 0.1 sebelum melakukan pemeringkatan TOPSIS.
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- Need Index per Cluster -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 mb-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-3">
+        Need Index per Cluster (K-Means)
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full">
+          <thead>
+            <tr>
+              <th class="px-2 py-2">Cluster</th>
+              <th class="px-2 py-2">Mean Need Index</th>
+              <th class="px-2 py-2">Jumlah Anggota</th>
+              <th class="px-2 py-2">Label</th>
+              <th class="px-2 py-2">Anggota</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cname, row in need_index_table.items() %}
+              <tr class="odd:bg-white even:bg-slate-50">
+                <td class="px-2 py-1">{{ cname }}</td>
+                <td class="px-2 py-1">{{ "%.4f"|format(row.Mean_Need_Index) }}</td>
+                <td class="px-2 py-1">{{ row.Count }}</td>
+                <td class="px-2 py-1">{{ row.Label }}</td>
+                <td class="px-2 py-1 text-left">{{ row.Members }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Ranking TOPSIS -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-3">
+        Ranking TOPSIS
+      </h2>
+
+      {% if ahp_inconsistent %}
+        <p class="text-sm text-slate-600">
+          Ranking TOPSIS tidak dihitung karena <b>Consistency Ratio (CR) &ge; 0.1</b>.
+          Silakan perbaiki matriks AHP terlebih dahulu.
+        </p>
+      {% elif ranking and ranking|length > 0 %}
+        <div class="overflow-x-auto mb-4">
+          <table class="min-w-full">
+            <thead>
+              <tr>
+                <th class="px-2 py-2">Alternatif</th>
+                <th class="px-2 py-2">Cluster</th>
+                <th class="px-2 py-2">Label</th>
+                <th class="px-2 py-2">Skor TOPSIS</th>
+                <th class="px-2 py-2">Rank</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in ranking %}
+                <tr class="odd:bg-white even:bg-slate-50">
+                  <td class="px-2 py-1">{{ r.alternatif }}</td>
+                  <td class="px-2 py-1">{{ r.cluster }}</td>
+                  <td class="px-2 py-1">{{ r.label }}</td>
+                  <td class="px-2 py-1">{{ "%.4f"|format(r.score) }}</td>
+                  <td class="px-2 py-1 font-semibold">{{ r.rank }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="text-sm font-medium text-slate-900 mb-2">
+          Visualisasi Ranking (Bar Chart)
+        </h3>
+        <div class="w-full max-w-2xl mx-auto">
+          <div class="relative" style="height:260px;">
+            <canvas id="rankChart"></canvas>
+          </div>
+        </div>
+      {% else %}
+        <p class="text-sm text-slate-600">
+          Tidak ada alternatif dengan label <b>"Butuh Bimbingan Tinggi"</b> yang bisa diranking.
+        </p>
+      {% endif %}
+    </section>
+  </div>
+
+  {% if ranking and ranking|length > 0 and not ahp_inconsistent %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const rankingData = {{ ranking | tojson | safe }};
+    const labels = rankingData.map(r => r.alternatif + " (R" + r.rank + ")");
+    const scores = rankingData.map(r => r.score);
+
+    const ctx = document.getElementById('rankChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Skor TOPSIS',
+          data: scores,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 1
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              font: { size: 10 }
+            }
+          }
+        }
+      }
+    });
+  </script>
+  {% endif %}
+
+  <script>
+    function setupThemeToggle() {
+      const btn = document.getElementById('theme-toggle');
+      const iconMoon = document.getElementById('icon-moon');
+      const iconSun = document.getElementById('icon-sun');
+      if (!btn || !iconMoon || !iconSun) return;
+
+      function applyIcon(theme) {
+        if (theme === 'dark') {
+          iconSun.classList.remove('hidden');
+          iconMoon.classList.add('hidden');
+        } else {
+          iconMoon.classList.remove('hidden');
+          iconSun.classList.add('hidden');
+        }
+      }
+
+      let currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      applyIcon(currentTheme);
+
+      btn.addEventListener('click', () => {
+        currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        const next = currentTheme === 'dark' ? 'light' : 'dark';
+
+        if (next === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        try {
+          localStorage.setItem('theme', next);
+        } catch (e) {}
+        applyIcon(next);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', setupThemeToggle);
+  </script>
+</body>
+</html>

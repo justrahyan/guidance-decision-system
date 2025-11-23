@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Upload Dataset Mahasiswa</title>
+
+  <!-- Apply saved theme -->
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('theme') || 'light';
+        if (saved === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <style>
+    body {
+      font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    /* Dark overrides (same set) */
+    .dark body {
+      background-color: #020617;
+      color: #e5e7eb;
+    }
+    .dark .bg-slate-50 {
+      background-color: #020617 !important;
+    }
+    .dark .bg-white {
+      background-color: #020617 !important;
+    }
+    .dark .text-slate-900 {
+      color: #e5e7eb !important;
+    }
+    .dark .text-slate-700 {
+      color: #cbd5f5 !important;
+    }
+    .dark .text-slate-600 {
+      color: #9ca3af !important;
+    }
+    .dark .text-slate-500 {
+      color: #6b7280 !important;
+    }
+    .dark .border-slate-200,
+    .dark .border-slate-300 {
+      border-color: #1f2937 !important;
+    }
+    .dark .bg-slate-100 {
+      background-color: #020617 !important;
+    }
+    .dark .shadow-sm {
+      box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.9), 0 1px 2px -1px rgba(15, 23, 42, 0.9) !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50">
+
+  <!-- THEME TOGGLE BUTTON -->
+  <button
+    id="theme-toggle"
+    type="button"
+    class="fixed z-50 top-4 right-4 inline-flex items-center justify-center rounded-full
+           border border-slate-300 bg-white/80 px-2.5 py-2 shadow-sm hover:bg-slate-100
+           backdrop-blur-sm transition"
+    aria-label="Toggle theme">
+    <span id="icon-moon" class="hidden">
+      <!-- Moon -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12.058 20q-3.334 0-5.667-2.333T4.058 12q0-3.039 1.98-5.27t4.904-2.634q.081 0 .159.006t.153.017q-.506.706-.801 1.57T10.158 7.5q0 2.667 1.866 4.533t4.534 1.867q.951 0 1.813-.295t1.548-.801q.012.075.017.153t.006.159q-.384 2.923-2.615 4.903T12.057 20"/>
+      </svg>
+    </span>
+    <span id="icon-sun" class="hidden">
+      <!-- Sun -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 16q-1.671 0-2.835-1.164Q8 13.67 8 12t1.165-2.835T12 8t2.836 1.165T16 12t-1.164 2.836T12 16m-7-3.5H1.5v-1H5zm17.5 0H19v-1h3.5zM11.5 5V1.5h1V5zm0 17.5V19h1v3.5zM6.746 7.404l-2.16-2.098l.695-.745l2.111 2.135zM18.72 19.439l-2.117-2.141l.652-.702l2.16 2.098zM16.596 6.745l2.098-2.16l.745.695l-2.135 2.111zM4.562 18.72l2.14-2.117l.664.652l-2.08 2.179z"/>
+      </svg>
+    </span>
+  </button>
+
+  <div class="max-w-xl mx-auto px-4 py-10">
+    <h1 class="text-2xl font-semibold text-slate-900 mb-2">
+      Upload Dataset Mahasiswa
+    </h1>
+    <p class="text-sm text-slate-600 mb-6">
+      Silahkan upload file Excel (.xlsx)
+    </p>
+
+    <form method="post" enctype="multipart/form-data"
+          class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">
+          Pilih file dataset
+        </label>
+        <input
+          type="file"
+          name="dataset"
+          accept=".xlsx"
+          class="block w-full text-sm text-slate-700 file:mr-4 file:py-2 file:px-4
+                 file:rounded-full file:border-0 file:text-sm file:font-medium
+                 file:bg-slate-900 file:text-white hover:file:bg-slate-800" />
+      </div>
+
+      {% if error %}
+        <p class="text-sm font-medium text-red-600">
+          {{ error }}
+        </p>
+      {% endif %}
+
+      <div class="pt-2">
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center rounded-xl px-4 py-2.5
+                 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500">
+          Upload &amp; Lanjut ke AHP
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function setupThemeToggle() {
+      const btn = document.getElementById('theme-toggle');
+      const iconMoon = document.getElementById('icon-moon');
+      const iconSun = document.getElementById('icon-sun');
+      if (!btn || !iconMoon || !iconSun) return;
+
+      function applyIcon(theme) {
+        if (theme === 'dark') {
+          iconSun.classList.remove('hidden');
+          iconMoon.classList.add('hidden');
+        } else {
+          iconMoon.classList.remove('hidden');
+          iconSun.classList.add('hidden');
+        }
+      }
+
+      let currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      applyIcon(currentTheme);
+
+      btn.addEventListener('click', () => {
+        currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        const next = currentTheme === 'dark' ? 'light' : 'dark';
+
+        if (next === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        try {
+          localStorage.setItem('theme', next);
+        } catch (e) {}
+
+        applyIcon(next);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', setupThemeToggle);
+  </script>
+</body>
+</html>

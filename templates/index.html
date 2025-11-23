@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SPK AHP–TOPSIS Mahasiswa</title>
+
+  <!-- Apply saved theme -->
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('theme') || 'light';
+        if (saved === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <style>
+    body { font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+
+    .dark body {
+      background-color: #020617;
+      color: #e5e7eb;
+    }
+    .dark .bg-slate-50 {
+      background-color: #020617 !important;
+    }
+    .dark .bg-white {
+      background-color: #020617 !important;
+    }
+    .dark .text-slate-900 {
+      color: #e5e7eb !important;
+    }
+    .dark .text-slate-700 {
+      color: #cbd5f5 !important;
+    }
+    .dark .text-slate-600 {
+      color: #9ca3af !important;
+    }
+    .dark .text-slate-500 {
+      color: #6b7280 !important;
+    }
+    .dark .border-slate-200,
+    .dark .border-slate-300 {
+      border-color: #1f2937 !important;
+    }
+    .dark .bg-slate-100 {
+      background-color: #020617 !important;
+    }
+    .dark .shadow-sm {
+      box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.9), 0 1px 2px -1px rgba(15, 23, 42, 0.9) !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50">
+
+  <!-- THEME TOGGLE BUTTON -->
+  <button
+    id="theme-toggle"
+    type="button"
+    class="fixed z-50 top-4 right-4 inline-flex items-center justify-center rounded-full
+           border border-slate-300 bg-white/80 px-2.5 py-2 shadow-sm hover:bg-slate-100
+           backdrop-blur-sm transition"
+    aria-label="Toggle theme">
+    <span id="icon-moon" class="hidden">
+      <!-- Moon -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12.058 20q-3.334 0-5.667-2.333T4.058 12q0-3.039 1.98-5.27t4.904-2.634q.081 0 .159.006t.153.017q-.506.706-.801 1.57T10.158 7.5q0 2.667 1.866 4.533t4.534 1.867q.951 0 1.813-.295t1.548-.801q.012.075.017.153t.006.159q-.384 2.923-2.615 4.903T12.057 20"/>
+      </svg>
+    </span>
+    <span id="icon-sun" class="hidden">
+      <!-- Sun -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 16q-1.671 0-2.835-1.164Q8 13.67 8 12t1.165-2.835T12 8t2.836 1.165T16 12t-1.164 2.836T12 16m-7-3.5H1.5v-1H5zm17.5 0H19v-1h3.5zM11.5 5V1.5h1V5zm0 17.5V19h1v3.5zM6.746 7.404l-2.16-2.098l.695-.745l2.111 2.135zM18.72 19.439l-2.117-2.141l.652-.702l2.16 2.098zM16.596 6.745l2.098-2.16l.745.695l-2.135 2.111zM4.562 18.72l2.14-2.117l.664.652l-2.08 2.179z"/>
+      </svg>
+    </span>
+  </button>
+
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <header class="mb-6">
+      <h1 class="text-2xl md:text-3xl font-semibold text-slate-900">
+        SPK Mahasiswa – AHP + TOPSIS + Clustering
+      </h1>
+      <p class="mt-2 text-sm text-slate-600 max-w-2xl">
+        Isi matriks perbandingan berpasangan (AHP) untuk 20 kriteria.
+        Semua sel di bagian atas diagonal (<code>i &lt; j</code>) wajib diisi.
+      </p>
+      <div class="mt-2 text-xs text-slate-500 bg-slate-100 inline-flex px-3 py-1 rounded-full">
+        Gunakan titik (&ldquo;.&rdquo;) sebagai pemisah desimal, contoh:
+        <span class="font-mono ml-1">3.5</span>
+      </div>
+    </header>
+
+    {% if error %}
+      <div class="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        {{ error }}
+      </div>
+    {% endif %}
+
+    <form method="post"
+          class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 space-y-4">
+
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-2">
+        <div class="text-xs text-slate-600">
+          <p class="mb-1">
+            Contoh: jika <b>Credits</b> 3× lebih penting dari <b>Age</b>,
+            maka pada sel <span class="font-mono">(Credits, Age)</span> isi <b>3</b>;
+            sel <span class="font-mono">(Age, Credits)</span> akan otomatis terisi <b>1/3</b>.
+          </p>
+          <div class="mt-2 text-[11px] text-slate-600">
+            <p class="font-semibold mb-1">Skala kepentingan (Saaty 1–9):</p>
+            <ul class="list-disc pl-4 space-y-0.5">
+              <li><span class="font-mono">1</span> – Sama penting</li>
+              <li><span class="font-mono">3</span> – Sedikit lebih penting</li>
+              <li><span class="font-mono">5</span> – Cukup lebih penting</li>
+              <li><span class="font-mono">7</span> – Sangat lebih penting</li>
+              <li><span class="font-mono">9</span> – Mutlak lebih penting (maksimum)</li>
+              <li><span class="font-mono">2, 4, 6, 8</span> – Nilai antara dua tingkat di atas</li>
+              <li><span class="font-mono">1/2, 1/3, ..., 1/9</span> – Kebalikannya (kriteria baris kurang penting dari kriteria kolom)</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Tombol isi otomatis -->
+        <div class="flex flex-col items-start gap-2">
+          <button
+            id="btn-autofill-ahp"
+            type="button"
+            class="inline-flex items-center justify-center rounded-xl px-3 py-2
+                   text-xs md:text-sm font-semibold text-slate-800 bg-slate-100
+                   hover:bg-slate-200 border border-slate-300">
+            Isi otomatis dari matriks penelitian
+          </button>
+          <p class="text-[11px] text-slate-500 max-w-xs">
+            Tombol ini akan mengisi seluruh matriks AHP dengan nilai bawaan
+            sesuai matriks hasil perhitungan penelitianmu.
+          </p>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-xl">
+        <table class="min-w-full text-[11px] md:text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-100 text-slate-700">
+              <th class="border border-slate-200 px-2 py-2 text-left sticky left-0 bg-slate-100 z-10">
+                Kriteria i \\ Kriteria j
+              </th>
+              {% for cj in criteria %}
+                <th class="border border-slate-200 px-2 py-2 whitespace-nowrap">
+                  {{ labels[cj] }}
+                </th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+          {% for ci in criteria %}
+            {% set i = loop.index0 %}
+            <tr class="odd:bg-white even:bg-slate-50">
+              <th class="border border-slate-200 px-2 py-2 text-left sticky left-0 bg-inherit z-10">
+                {{ labels[ci] }}
+              </th>
+              {% for cj in criteria %}
+                {% set j = loop.index0 %}
+                <td class="border border-slate-200 px-1 py-1 text-center">
+                  {% if i == j %}
+                    <span class="text-slate-500 text-xs">1</span>
+                  {% elif i < j %}
+                    <input
+                      type="number"
+                      step="any"
+                      min="0.0001"
+                      name="w_{{ ci }}_{{ cj }}"
+                      data-pair="w_{{ ci }}_{{ cj }}"
+                      data-i="{{ ci }}"
+                      data-j="{{ cj }}"
+                      required
+                      class="w-20 md:w-24 border border-slate-300 rounded-lg px-1 py-0.5
+                             text-xs text-slate-800 bg-white
+                             focus:outline-none focus:ring-1
+                             focus:ring-slate-500 focus:border-slate-500"
+                    >
+                  {% else %}
+                    <input
+                      type="number"
+                      step="any"
+                      min="0.0001"
+                      data-rev="w_{{ cj }}_{{ ci }}"
+                      data-i="{{ ci }}"
+                      data-j="{{ cj }}"
+                      class="w-20 md:w-24 border border-slate-200 rounded-lg px-1 py-0.5
+                             text-xs text-slate-500 bg-slate-50"
+                    >
+                  {% endif %}
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 text-[11px] text-slate-500">
+        <div>
+          Semua nilai perbandingan i&lt;j wajib diisi dan harus &gt; 0.
+        </div>
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center rounded-xl px-4 py-2.5
+                 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500">
+          Hitung Ranking
+        </button>
+      </div>
+    </form>
+
+    <footer class="mt-6 text-[11px] text-slate-400">
+      Dataset harus sudah di-upload terlebih dahulu sebelum mengisi bobot AHP.
+    </footer>
+  </div>
+
+  <script>
+    function setupThemeToggle() {
+      const btn = document.getElementById('theme-toggle');
+      const iconMoon = document.getElementById('icon-moon');
+      const iconSun = document.getElementById('icon-sun');
+      if (!btn || !iconMoon || !iconSun) return;
+
+      function applyIcon(theme) {
+        if (theme === 'dark') {
+          iconSun.classList.remove('hidden');
+          iconMoon.classList.add('hidden');
+        } else {
+          iconMoon.classList.remove('hidden');
+          iconSun.classList.add('hidden');
+        }
+      }
+
+      let currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      applyIcon(currentTheme);
+
+      btn.addEventListener('click', () => {
+        currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        const next = currentTheme === 'dark' ? 'light' : 'dark';
+
+        if (next === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        try {
+          localStorage.setItem('theme', next);
+        } catch (e) {}
+        applyIcon(next);
+      });
+    }
+
+    // =========================
+    // Sinkronisasi input pairwise (dua arah)
+    // =========================
+    function setupPairwiseSync() {
+      const mainInputs = document.querySelectorAll('input[data-pair]');
+      const revInputs  = document.querySelectorAll('input[data-rev]');
+
+      const mainMap = {};
+      mainInputs.forEach(inp => {
+        const key = inp.getAttribute('data-pair');
+        mainMap[key] = inp;
+      });
+
+      const revMap = {};
+      revInputs.forEach(inp => {
+        const key = inp.getAttribute('data-rev');
+        if (!revMap[key]) revMap[key] = [];
+        revMap[key].push(inp);
+      });
+
+      let lock = false;
+
+      function updateReverse(mainKey, valueStr) {
+        if (lock) return;
+        lock = true;
+        const val = parseFloat(valueStr);
+        if (isNaN(val) || val <= 0) {
+          (revMap[mainKey] || []).forEach(inp => inp.value = '');
+        } else {
+          const revVal = 1.0 / val;
+          (revMap[mainKey] || []).forEach(inp => {
+            inp.value = revVal.toFixed(4);
+          });
+        }
+        lock = false;
+      }
+
+      function updateMainFromReverse(revInput) {
+        if (lock) return;
+        const mainKey = revInput.getAttribute('data-rev');
+        const mainInp = mainMap[mainKey];
+        if (!mainInp) return;
+
+        lock = true;
+        const v = parseFloat(revInput.value);
+        if (isNaN(v) || v <= 0) {
+          mainInp.value = '';
+          updateReverse(mainKey, '');
+        } else {
+          const mainVal = 1.0 / v;
+          mainInp.value = mainVal.toFixed(4);
+          updateReverse(mainKey, mainInp.value);
+        }
+        lock = false;
+      }
+
+      mainInputs.forEach(inp => {
+        inp.addEventListener('input', e => {
+          const key = e.target.getAttribute('data-pair');
+          updateReverse(key, e.target.value);
+        });
+      });
+
+      revInputs.forEach(inp => {
+        inp.addEventListener('input', e => {
+          updateMainFromReverse(e.target);
+        });
+      });
+    }
+
+    // =========================
+    // AUTO-FILL dari matriks penelitian (fixed)
+    // =========================
+    function setupAutoFill() {
+      const criteriaOrder = {{ criteria | tojson | safe }};
+      const nCrit = criteriaOrder.length;
+
+      const matrixText = `
+  AdmYear 1 1 1 1 1/2 1/2 1/2 1 1/2 1/2 1/2 1/2 1/2 1/2 1 1/2 1/3 1/3 1/2 1
+  Age 1 1 1/2 1/2 1/2 1/3 1/3 1/2 1/3 1/3 1/4 1/3 1/2 1/2 1 1/2 1/4 1/3 1/3 1/2
+  HSCYear 1 2 1 1 1/2 1/2 1/2 1 1/2 1/2 1/2 1/2 1 1/2 1 1/2 1/3 1/3 1/2 1
+  Semester 1 2 1 1 1/2 1/2 1/2 1 1/2 1/2 1/2 1/2 1 1/2 1 1/2 1/3 1/3 1/2 1
+  Scholarship 2 2 2 2 1 1/2 1 1/2 1 1 1/2 1 1 1 2 1/2 1/2 1/2 1 1
+  Study Hours 2 3 2 2 2 1 1 2 1 1 1 1 1 1 3 2 1/2 1/2 1 2
+  Study Frequency 2 3 2 2 1 1 1 2 1 1 1/2 1 1 1 3 1 1/2 1/2 1 1
+  Learn Mode 1 2 1 1 2 1/2 1/2 1 1/2 1/2 1/2 1/2 1/2 1/2 1 1/2 1/3 1/3 1/2 1/2
+  Social Media 2 3 2 2 1 1 1 2 1 1 1/2 1 1 1 3 1 1/2 1/2 1 1
+  English Skill 2 3 2 2 1 1 1 2 1 1 1/2 1 1 1 3 1 1/2 1/2 1 1
+  Attendance 2 4 2 2 2 1 2 2 2 2 1 1 1 2 4 2 1 1 2 2
+  Probation 2 3 2 2 1 1 1 2 1 1 1 1 1 1 3 1 1 1/2 1 2
+  Consultancy 2 2 1 1 1 1 1 2 1 1 1 1 1 1 3 1 1/2 1/2 1 1
+  Skill Hours 2 2 2 2 1 1 1 2 1 1 1/2 1 1 1 2 1 1/2 1/2 1 1
+  Co Curricular 1 1 1 1 1/2 1/3 1/3 1 1/3 1/3 1/4 1/3 1/3 1/2 1 1/2 1/4 1/4 1/3 1/2
+  Health Issues 2 2 2 2 2 1/2 1 2 1 1 1/2 1 1 1 2 1 1/2 1/2 1 1
+  SGPA 3 4 3 3 2 2 2 3 2 2 1 1 2 2 4 2 1 1 2 3
+  CGPA 3 3 3 3 2 2 2 3 2 2 1 2 2 2 4 2 1 1 2 3
+  Credits 2 3 2 2 1 1 1 2 1 1 1/2 1 1 1 3 1 1/2 1/2 1 1
+  Family Income 1 2 1 1 1 1/2 1 2 1 1 1/2 1/2 1 1 2 1 1/3 1/3 1 1
+      `;
+
+      const btn = document.getElementById('btn-autofill-ahp');
+      if (!btn) return;
+
+      const pairDefaults = {};
+
+      function parseVal(str) {
+        if (!str) return NaN;
+        str = str.trim();
+        if (str.includes('/')) {
+          const parts = str.split('/');
+          const num = parseFloat(parts[0]);
+          const den = parseFloat(parts[1]);
+          if (!isNaN(num) && !isNaN(den) && den !== 0) {
+            return num / den;
+          }
+          return NaN;
+        }
+        return parseFloat(str);
+      }
+
+      function buildDefaultsOnce() {
+        if (Object.keys(pairDefaults).length > 0) return;
+
+        const lines = matrixText
+          .trim()
+          .split('\n')
+          .map(l => l.trim())
+          .filter(l => l.length > 0);
+
+        if (lines.length < nCrit) {
+          console.warn("matrixText barisnya kurang dari jumlah kriteria", lines.length, nCrit);
+        }
+
+        for (let idx = 0; idx < nCrit && idx < lines.length; idx++) {
+          const ci = criteriaOrder[idx];
+          const tokens = lines[idx].split(/\s+/);
+          const nums = tokens.slice(-nCrit).map(parseVal);
+          if (nums.length !== nCrit) {
+            console.warn("Baris", ci, "tidak punya", nCrit, "angka:", tokens);
+            continue;
+          }
+
+          for (let j = idx + 1; j < nCrit; j++) {
+            const cj = criteriaOrder[j];
+            const val = nums[j];
+            if (typeof val === 'number' && !isNaN(val) && val > 0) {
+              const key = `w_${ci}_${cj}`;
+              pairDefaults[key] = val;
+            }
+          }
+        }
+      }
+
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        buildDefaultsOnce();
+
+        const mainInputs = document.querySelectorAll('input[data-pair]');
+        mainInputs.forEach(inp => {
+          const key = inp.getAttribute('data-pair');
+          if (key && Object.prototype.hasOwnProperty.call(pairDefaults, key)) {
+            const v = pairDefaults[key];
+            inp.value = v;
+            inp.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setupThemeToggle();
+      setupPairwiseSync();
+      setupAutoFill();
+    });
+  </script>
+</body>
+</html>
