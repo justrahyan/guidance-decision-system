@@ -1,102 +1,226 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hasil SPK – AHP + TOPSIS</title>
 
-  <!-- Apply saved theme -->
-  <script>
-    (function () {
-      try {
-        const saved = localStorage.getItem('theme') || 'light';
-        if (saved === 'dark') {
-          document.documentElement.classList.add('dark');
-        }
-      } catch (e) {}
-    })();
-  </script>
-
   <!-- DM Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<!-- Tailwind CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-  <style>
-    body { font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    table { border-collapse: collapse; width: 100%; font-size: 12px; }
-    th, td { border: 1px solid #e2e8f0; padding: 4px 6px; text-align: center; }
-    th { background-color: #f1f5f9; }
-    .ok { color: #16a34a; }
-    .bad { color: #dc2626; }
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f8fafc;
+    --fg: #0f172a;
+    --card-bg: #ffffff;
+    --border: #e2e8f0;
+    --muted: #64748b;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #020617;
+    --fg: #e5e7eb;
+    --card-bg: #020617;
+    --border: #1f2937;
+    --muted: #9ca3af;
+  }
+  body {
+    font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background-color: var(--bg);
+    color: var(--fg);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  /* Override beberapa Tailwind supaya bener-bener ikut theme */
+  [data-theme="dark"] .bg-white,
+  [data-theme="dark"] .bg-slate-50,
+  [data-theme="dark"] .bg-slate-100 {
+    background-color: var(--card-bg) !important;
+  }
+  [data-theme="dark"] .text-slate-900 {
+    color: var(--fg) !important;
+  }
+  [data-theme="dark"] .text-slate-700,
+  [data-theme="dark"] .text-slate-600,
+  [data-theme="dark"] .text-slate-500 {
+    color: var(--muted) !important;
+  }
+  [data-theme="dark"] .border-slate-200,
+  [data-theme="dark"] .border-slate-300 {
+    border-color: var(--border) !important;
+  }
+  
+  :root[data-theme="dark"] table {
+    color: var(--fg);
+  }
 
-    .dark body {
-      background-color: #020617;
-      color: #e5e7eb;
+  /* Header tabel */
+  :root[data-theme="dark"] table thead tr {
+    background-color: #0f172a !important; /* slate-900 */
+    color: var(--fg) !important;
+  }
+
+  /* Background setiap baris tabel */
+  :root[data-theme="dark"] table tbody tr {
+    background-color: #111827 !important; /* slate-900 sedikit lebih terang */
+    border-color: #1f2937 !important;     /* border slate-800 */
+  }
+
+  /* Even rows sedikit lebih terang */
+  :root[data-theme="dark"] table tbody tr:nth-child(even) {
+    background-color: #1e293b !important; /* slate-700 */
+  }
+
+  /* Hover row */
+  :root[data-theme="dark"] table tbody tr:hover {
+    background-color: #334155 !important; /* slate-600 */
+  }
+
+  /* Cell border */
+  :root[data-theme="dark"] table th,
+  :root[data-theme="dark"] table td {
+    border-color: #1f2937 !important;  /* slate-800 */
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    html, body {
+      overflow-x: hidden;
     }
-    .dark .bg-slate-50 {
-      background-color: #020617 !important;
+
+    .max-w-7xl.mx-auto {
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
-    .dark .bg-white {
-      background-color: #020617 !important;
+
+    /* Navbar */
+    nav.flex.items-center.justify-between {
+    flex-wrap: nowrap !important;
+  }
+
+  /* Logo + text kiri jangan melebar */
+  nav > a {
+    flex-shrink: 1 !important;
+    min-width: 0 !important;
+  }
+
+  /* Container kanan (beranda + toggle) jangan memaksa melebar */
+  nav > div {
+    flex-shrink: 0 !important;
+  }
+
+  /* Hilangkan jarak besar agar muat */
+  nav.flex.items-center.justify-between {
+    gap: 0.5rem !important;
+  }
+
+  /* Teks “SPK Bimbingan Mahasiswa” disembunyikan pada layar kecil */
+  nav a span.hidden.sm\:inline {
+    display: none !important;
+  }
+
+    /* Header hasil SPK */
+    header.mb-6.flex {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
     }
-    .dark .text-slate-900 {
-      color: #e5e7eb !important;
+
+    header.mb-6.flex h1 {
+      font-size: 1.35rem;
+      line-height: 1.4;
     }
-    .dark .text-slate-700 {
-      color: #cbd5f5 !important;
+
+    header.mb-6.flex p {
+      font-size: 0.875rem;
     }
-    .dark .text-slate-600 {
-      color: #9ca3af !important;
+
+    /* Semua section card dipadatkan */
+    .bg-white.rounded-2xl.shadow-sm.border.border-slate-200 {
+      padding: 0.875rem !important;
     }
-    .dark .text-slate-500 {
-      color: #6b7280 !important;
+
+    /* Tabel: scroll halus + font kecil */
+    .overflow-x-auto {
+      -webkit-overflow-scrolling: touch;
     }
-    .dark .border-slate-200,
-    .dark .border-slate-300 {
-      border-color: #1f2937 !important;
+
+    table.min-w-full {
+      font-size: 0.7rem;
     }
-    .dark .bg-slate-100 {
-      background-color: #020617 !important;
+
+    table.min-w-full th,
+    table.min-w-full td {
+      padding: 0.25rem 0.35rem;
+      white-space: nowrap;
     }
-    .dark th {
-      background-color: #0b1120 !important;
+
+    /* Kolom teks panjang (Anggota / Members) boleh wrap */
+    td.text-left {
+      white-space: normal;
+      word-break: break-word;
     }
-    .dark td {
-      border-color: #1f2937 !important;
+
+    /* Chart container tetap muat di layar */
+    .w-full.max-w-2xl.mx-auto {
+      max-width: 100%;
     }
-    .dark .shadow-sm {
-      box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.9), 0 1px 2px -1px rgba(15, 23, 42, 0.9) !important;
+  }
+
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .max-w-7xl.mx-auto {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
     }
-  </style>
+
+    header.mb-6.flex h1 {
+      font-size: 1.6rem;
+    }
+
+    table.min-w-full {
+      font-size: 0.8rem;
+    }
+  }
+</style>
+
 </head>
 <body class="min-h-screen bg-slate-50">
+  <div class="max-w-7xl mx-auto px-4 py-4 md:py-6">
+    <nav class="flex items-center justify-between gap-3 mb-4 md:mb-6">
+      <a href="{{ url_for('home') }}"
+         class="flex items-center gap-2 text-sm md:text-base font-semibold text-slate-900 cursor-pointer">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white text-xs md:text-sm">
+          SPK
+        </span>
+        <span class="hidden sm:inline text-slate-900">
+          SPK Bimbingan Mahasiswa
+        </span>
+      </a>
 
-  <!-- THEME TOGGLE BUTTON -->
-  <button
-    id="theme-toggle"
-    type="button"
-    class="fixed z-50 top-4 right-4 inline-flex items-center justify-center rounded-full
-           border border-slate-300 bg-white/80 px-2.5 py-2 shadow-sm hover:bg-slate-100
-           backdrop-blur-sm transition"
-    aria-label="Toggle theme">
-    <span id="icon-moon" class="hidden">
-      <!-- Moon -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12.058 20q-3.334 0-5.667-2.333T4.058 12q0-3.039 1.98-5.27t4.904-2.634q.081 0 .159.006t.153.017q-.506.706-.801 1.57T10.158 7.5q0 2.667 1.866 4.533t4.534 1.867q.951 0 1.813-.295t1.548-.801q.012.075.017.153t.006.159q-.384 2.923-2.615 4.903T12.057 20"/>
-      </svg>
-    </span>
-    <span id="icon-sun" class="hidden">
-      <!-- Sun -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12 16q-1.671 0-2.835-1.164Q8 13.67 8 12t1.165-2.835T12 8t2.836 1.165T16 12t-1.164 2.836T12 16m-7-3.5H1.5v-1H5zm17.5 0H19v-1h3.5zM11.5 5V1.5h1V5zm0 17.5V19h1v3.5zM6.746 7.404l-2.16-2.098l.695-.745l2.111 2.135zM18.72 19.439l-2.117-2.141l.652-.702l2.16 2.098zM16.596 6.745l2.098-2.16l.745.695l-2.135 2.111zM4.562 18.72l2.14-2.117l.664.652l-2.08 2.179z"/>
-      </svg>
-    </span>
-  </button>
-
-  <div class="max-w-6xl mx-auto px-4 py-8">
+      <div class="flex items-center gap-3">
+        <a href="{{ url_for('home') }}"
+           class="text-xs md:text-sm text-slate-700 hover:text-slate-900 cursor-pointer">
+          Beranda
+        </a>
+        <a href="{{ url_for('panduan') }}"
+          class="text-xs md:text-sm text-slate-700 hover:text-slate-900 cursor-pointer">
+          Panduan
+        </a>
+        <button
+          id="themeToggle"
+          type="button"
+          class="inline-flex items-center justify-center rounded-full border border-slate-300
+                 bg-white/80 px-2.5 py-2 cursor-pointer text-slate-700 hover:bg-slate-100
+                 dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100">
+          <span id="themeToggleIcon" class="inline-flex"></span>
+        </button>
+      </div>
+    </nav>
     <header class="mb-6 flex items-center justify-between gap-3">
       <div>
         <h1 class="text-2xl md:text-3xl font-semibold text-slate-900">
@@ -107,11 +231,7 @@
           untuk mahasiswa dengan label kebutuhan bimbingan tinggi.
         </p>
       </div>
-      <a href="{{ url_for('index') }}"
-        class="inline-flex items-center text-xs md:text-sm font-medium text-slate-700
-                border border-slate-300 rounded-full px-3 py-1.5 bg-white hover:bg-slate-50">
-        ← Kembali ke input AHP
-      </a>
+
     </header>
 
     <!-- Ringkasan AHP -->
@@ -122,9 +242,9 @@
         CI = {{ "%.6f"|format(CI) }}<br>
         CR = {{ "%.6f"|format(CR) }}
         {% if CR < 0.1 %}
-          <span class="ok text-xs font-semibold">(konsisten &lt; 0.1)</span>
+          <span class="ok text-xs font-semibold text-green-600">(konsisten &lt; 0.1)</span>
         {% else %}
-          <span class="bad text-xs font-semibold">(tidak konsisten &ge; 0.1 – bobot AHP tidak dapat digunakan untuk TOPSIS)</span>
+          <span class="bad text-xs font-semibold text-red-600">(tidak konsisten &ge; 0.1 – bobot AHP tidak dapat digunakan untuk TOPSIS)</span>
         {% endif %}
       </p>
 
@@ -132,15 +252,15 @@
         <table class="min-w-full mb-2">
           <thead>
             <tr>
-              <th class="px-2 py-2">Kriteria</th>
-              <th class="px-2 py-2">Bobot AHP</th>
+              <th class="px-2 py-2 text-xs md:text-sm">Kriteria</th>
+              <th class="px-2 py-2 text-xs md:text-sm">Bobot AHP</th>
             </tr>
           </thead>
           <tbody>
             {% for w in ahp_weights %}
               <tr class="odd:bg-white even:bg-slate-50">
-                <td class="px-2 py-1 text-left">{{ w.label }}</td>
-                <td class="px-2 py-1">{{ "%.4f"|format(w.weight) }}</td>
+                <td class="px-2 py-1 text-left text-xs md:text-sm">{{ w.label }}</td>
+                <td class="px-2 py-1 text-xs md:text-sm">{{ "%.4f"|format(w.weight) }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -164,21 +284,21 @@
         <table class="min-w-full">
           <thead>
             <tr>
-              <th class="px-2 py-2">Cluster</th>
-              <th class="px-2 py-2">Mean Need Index</th>
-              <th class="px-2 py-2">Jumlah Anggota</th>
-              <th class="px-2 py-2">Label</th>
-              <th class="px-2 py-2">Anggota</th>
+              <th class="px-2 py-2 text-xs md:text-sm">Cluster</th>
+              <th class="px-2 py-2 text-xs md:text-sm">Mean Need Index</th>
+              <th class="px-2 py-2 text-xs md:text-sm">Jumlah Anggota</th>
+              <th class="px-2 py-2 text-xs md:text-sm">Label</th>
+              <th class="px-2 py-2 text-xs md:text-sm">Anggota</th>
             </tr>
           </thead>
           <tbody>
             {% for cname, row in need_index_table.items() %}
               <tr class="odd:bg-white even:bg-slate-50">
-                <td class="px-2 py-1">{{ cname }}</td>
-                <td class="px-2 py-1">{{ "%.4f"|format(row.Mean_Need_Index) }}</td>
-                <td class="px-2 py-1">{{ row.Count }}</td>
-                <td class="px-2 py-1">{{ row.Label }}</td>
-                <td class="px-2 py-1 text-left">{{ row.Members }}</td>
+                <td class="px-2 py-1 text-xs md:text-sm">{{ cname }}</td>
+                <td class="px-2 py-1 text-xs md:text-sm">{{ "%.4f"|format(row.Mean_Need_Index) }}</td>
+                <td class="px-2 py-1 text-xs md:text-sm">{{ row.Count }}</td>
+                <td class="px-2 py-1 text-xs md:text-sm">{{ row.Label }}</td>
+                <td class="px-2 py-1 text-left text-xs md:text-sm">{{ row.Members }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -192,6 +312,18 @@
         Ranking TOPSIS
       </h2>
 
+      {% if not ahp_inconsistent and ranking and ranking|length > 0 %}
+        <a href="{{ url_for('download_ranking') }}"
+            class="inline-flex items-center justify-center rounded-xl border border-slate-300
+                  bg-slate-900 text-white text-xs md:text-sm font-semibold px-3 py-2 mb-4
+                  hover:bg-slate-800 cursor-pointer dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" class="mr-1.5">
+            <path fill="currentColor" d="M11 16V7.85l-2.6 2.6L7 9l5-5l5 5l-1.4 1.45l-2.6-2.6V16zm-5 4q-.825 0-1.412-.587T4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413T18 20z"/>
+          </svg>
+          <span>Download Ranking (Excel)</span>
+        </a>
+      {% endif %}
+
       {% if ahp_inconsistent %}
         <p class="text-sm text-slate-600">
           Ranking TOPSIS tidak dihitung karena <b>Consistency Ratio (CR) &ge; 0.1</b>.
@@ -202,21 +334,19 @@
           <table class="min-w-full">
             <thead>
               <tr>
-                <th class="px-2 py-2">Alternatif</th>
-                <th class="px-2 py-2">Cluster</th>
-                <th class="px-2 py-2">Label</th>
-                <th class="px-2 py-2">Skor TOPSIS</th>
-                <th class="px-2 py-2">Rank</th>
+                <th class="px-2 py-2 text-xs md:text-sm">Rank</th>
+                <th class="px-2 py-2 text-xs md:text-sm">Alternatif</th>
+                <th class="px-2 py-2 text-xs md:text-sm">Skor TOPSIS</th>
+                <th class="px-2 py-2 text-xs md:text-sm">Label</th>
               </tr>
             </thead>
             <tbody>
               {% for r in ranking %}
                 <tr class="odd:bg-white even:bg-slate-50">
-                  <td class="px-2 py-1">{{ r.alternatif }}</td>
-                  <td class="px-2 py-1">{{ r.cluster }}</td>
-                  <td class="px-2 py-1">{{ r.label }}</td>
-                  <td class="px-2 py-1">{{ "%.4f"|format(r.score) }}</td>
-                  <td class="px-2 py-1 font-semibold">{{ r.rank }}</td>
+                  <td class="px-2 py-1 text-xs md:text-sm font-semibold">{{ r.rank }}</td>
+                  <td class="px-2 py-1 text-xs md:text-sm">{{ r.alternatif }}</td>
+                  <td class="px-2 py-1 text-xs md:text-sm">{{ "%.4f"|format(r.score) }}</td>
+                  <td class="px-2 py-1 text-xs md:text-sm">{{ r.label }}</td>
                 </tr>
               {% endfor %}
             </tbody>
@@ -279,42 +409,48 @@
   {% endif %}
 
   <script>
-    function setupThemeToggle() {
-      const btn = document.getElementById('theme-toggle');
-      const iconMoon = document.getElementById('icon-moon');
-      const iconSun = document.getElementById('icon-sun');
-      if (!btn || !iconMoon || !iconSun) return;
+  (function () {
+    const root = document.documentElement;
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initial = stored || (prefersDark ? 'dark' : 'light');
+    root.dataset.theme = initial;
 
-      function applyIcon(theme) {
-        if (theme === 'dark') {
-          iconSun.classList.remove('hidden');
-          iconMoon.classList.add('hidden');
-        } else {
-          iconMoon.classList.remove('hidden');
-          iconSun.classList.add('hidden');
-        }
+    function setIcon(theme) {
+      const iconSpan = document.getElementById('themeToggleIcon');
+      if (!iconSpan) return;
+
+      if (theme === 'dark') {
+        /* DARK MODE SEDANG AKTIF → tampilkan ICON MATAHARI (untuk ganti ke light) */
+        iconSpan.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+  <path fill="currentColor" d="M12 16q-1.671 0-2.835-1.164Q8 13.67 8 12t1.165-2.835T12 8t2.836 1.165T16 12t-1.164 2.836T12 16m-7-3.5H1.5v-1H5zm17.5 0H19v-1h3.5zM11.5 5V1.5h1V5zm0 17.5V19h1v3.5zM6.746 7.404l-2.16-2.098l.695-.745l2.111 2.135zM18.72 19.439l-2.117-2.141l.652-.702l2.16 2.098zM16.596 6.745l2.098-2.16l.745.695l-2.135 2.111zM4.562 18.72l2.14-2.117l.664.652l-2.08 2.179z"/>
+</svg>`;
+      } else {
+        /* LIGHT MODE SEDANG AKTIF → tampilkan ICON BULAN (untuk ganti ke dark) */
+        iconSpan.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+  <path fill="currentColor" d="M12.058 20q-3.334 0-5.667-2.333T4.058 12q0-3.039 1.98-5.27t4.904-2.634q.081 0 .159.006t.153.017q-.506.706-.801 1.57T10.158 7.5q0 2.667 1.866 4.533t4.534 1.867q.951 0 1.813-.295t1.548-.801q.012.075.017.153t.006.159q-.384 2.923-2.615 4.903T12.057 20"/>
+</svg>`;
       }
-
-      let currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-      applyIcon(currentTheme);
-
-      btn.addEventListener('click', () => {
-        currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        const next = currentTheme === 'dark' ? 'light' : 'dark';
-
-        if (next === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-        try {
-          localStorage.setItem('theme', next);
-        } catch (e) {}
-        applyIcon(next);
-      });
     }
 
-    document.addEventListener('DOMContentLoaded', setupThemeToggle);
-  </script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const current = root.dataset.theme === 'dark' ? 'dark' : 'light';
+      setIcon(current);
+
+      const btn = document.getElementById('themeToggle');
+      if (!btn) return;
+
+      btn.addEventListener('click', function () {
+        const now = root.dataset.theme === 'dark' ? 'dark' : 'light';
+        const next = now === 'dark' ? 'light' : 'dark';
+        root.dataset.theme = next;
+        localStorage.setItem('theme', next);
+        setIcon(next);
+      });
+    });
+  })();
+</script>
 </body>
 </html>

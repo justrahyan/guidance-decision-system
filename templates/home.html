@@ -1,111 +1,192 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SPK Kebutuhan Bimbingan Mahasiswa</title>
 
-  <!-- Apply saved theme as early as possible -->
-  <script>
-    (function () {
-      try {
-        const saved = localStorage.getItem('theme') || 'light';
-        if (saved === 'dark') {
-          document.documentElement.classList.add('dark');
-        }
-      } catch (e) {
-        // ignore
-      }
-    })();
-  </script>
-
   <!-- DM Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<!-- Tailwind CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-  <style>
-    body {
-      font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f8fafc;
+    --fg: #0f172a;
+    --card-bg: #ffffff;
+    --border: #e2e8f0;
+    --muted: #64748b;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #020617;
+    --fg: #e5e7eb;
+    --card-bg: #020617;
+    --border: #1f2937;
+    --muted: #9ca3af;
+  }
+  body {
+    font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background-color: var(--bg);
+    color: var(--fg);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  /* Override beberapa Tailwind supaya bener-bener ikut theme */
+  [data-theme="dark"] .bg-white,
+  [data-theme="dark"] .bg-slate-50,
+  [data-theme="dark"] .bg-slate-100 {
+    background-color: var(--card-bg) !important;
+  }
+  [data-theme="dark"] .text-slate-900 {
+    color: var(--fg) !important;
+  }
+  [data-theme="dark"] .text-slate-700,
+  [data-theme="dark"] .text-slate-600,
+  [data-theme="dark"] .text-slate-500 {
+    color: var(--muted) !important;
+  }
+  [data-theme="dark"] .border-slate-200,
+  [data-theme="dark"] .border-slate-300 {
+    border-color: var(--border) !important;
+  }
+
+  /* Responsive */
+  /* Mobile (≤ 640px) */
+  @media (max-width: 640px) {
+    html, body {
+      overflow-x: hidden;
     }
 
-    /* ===== DARK MODE OVERRIDES ===== */
-    .dark body {
-      background-color: #020617; /* slate-950 */
-      color: #e5e7eb;           /* slate-200 */
+    .max-w-7xl.mx-auto {
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
-    .dark .bg-slate-50 {
-      background-color: #020617 !important;
+
+    /* Navbar wrap 2 baris */
+    nav.flex.items-center.justify-between {
+      flex-wrap: nowrap !important;
     }
-    .dark .bg-white {
-      background-color: #020617 !important;
+
+    /* Logo + text kiri jangan melebar */
+    nav > a {
+      flex-shrink: 1 !important;
+      min-width: 0 !important;
     }
-    .dark .text-slate-900 {
-      color: #e5e7eb !important;
+
+    /* Container kanan (beranda + toggle) jangan memaksa melebar */
+    nav > div {
+      flex-shrink: 0 !important;
     }
-    .dark .text-slate-700 {
-      color: #cbd5f5 !important;
+
+    /* Hilangkan jarak besar agar muat */
+    nav.flex.items-center.justify-between {
+      gap: 0.5rem !important;
     }
-    .dark .text-slate-600 {
-      color: #9ca3af !important;
+
+    /* Teks “SPK Bimbingan Mahasiswa” disembunyikan pada layar kecil */
+    nav a span.hidden.sm\:inline {
+      display: none !important;
     }
-    .dark .text-slate-500 {
-      color: #6b7280 !important;
+
+    /* Header jadi kolom */
+    header.mb-8.flex {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
     }
-    .dark .text-slate-400 {
-      color: #9ca3af !important;
+
+    header.mb-8.flex h1 {
+      font-size: 1.35rem;
+      line-height: 1.4;
     }
-    .dark .border-slate-200,
-    .dark .border-slate-300 {
-      border-color: #1f2937 !important;
+
+    header.mb-8.flex p {
+      font-size: 0.9rem;
     }
-    .dark .bg-slate-100 {
-      background-color: #020617 !important;
+
+    /* Card-card konten dipadatkan di HP */
+    .bg-white.rounded-2xl.shadow-sm.border {
+      padding: 0.875rem !important;
     }
-    .dark .shadow-sm {
-      box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.9), 0 1px 2px -1px rgba(15, 23, 42, 0.9) !important;
+
+    /* Grid kriteria jadi 1 kolom di layar sempit */
+    .grid.md\:grid-cols-2.gap-4 {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.75rem;
     }
-  </style>
+
+    /* Section tombol “Mulai” supaya tidak terlalu melebar */
+    section.flex.flex-col.md\:flex-row.items-start.md\:items-center.gap-3 {
+      align-items: flex-start;
+    }
+  }
+
+  /* Tablet */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .max-w-7xl.mx-auto {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+
+    header.mb-8.flex h1 {
+      font-size: 1.6rem;
+    }
+  }
+</style>
+
 </head>
 <body class="min-h-screen bg-slate-50">
+  <div class="max-w-7xl mx-auto px-4 py-4 md:py-6">
+    <nav class="flex items-center justify-between gap-3 mb-4 md:mb-6">
+      <a href="{{ url_for('home') }}"
+         class="flex items-center gap-2 text-sm md:text-base font-semibold text-slate-900 cursor-pointer">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white text-xs md:text-sm">
+          SPK
+        </span>
+        <span class="hidden sm:inline text-slate-900">
+          SPK Bimbingan Mahasiswa
+        </span>
+      </a>
 
-  <!-- THEME TOGGLE BUTTON -->
-  <button
-    id="theme-toggle"
-    type="button"
-    class="fixed z-50 top-4 right-4 inline-flex items-center justify-center rounded-full
-           border border-slate-300 bg-white/80 px-2.5 py-2 shadow-sm hover:bg-slate-100
-           backdrop-blur-sm transition"
-    aria-label="Toggle theme">
-    <span id="icon-moon" class="hidden">
-      <!-- Moon icon (for switching to dark) -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12.058 20q-3.334 0-5.667-2.333T4.058 12q0-3.039 1.98-5.27t4.904-2.634q.081 0 .159.006t.153.017q-.506.706-.801 1.57T10.158 7.5q0 2.667 1.866 4.533t4.534 1.867q.951 0 1.813-.295t1.548-.801q.012.075.017.153t.006.159q-.384 2.923-2.615 4.903T12.057 20"/>
-      </svg>
-    </span>
-    <span id="icon-sun" class="hidden">
-      <!-- Sun icon (for switching to light) -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12 16q-1.671 0-2.835-1.164Q8 13.67 8 12t1.165-2.835T12 8t2.836 1.165T16 12t-1.164 2.836T12 16m-7-3.5H1.5v-1H5zm17.5 0H19v-1h3.5zM11.5 5V1.5h1V5zm0 17.5V19h1v3.5zM6.746 7.404l-2.16-2.098l.695-.745l2.111 2.135zM18.72 19.439l-2.117-2.141l.652-.702l2.16 2.098zM16.596 6.745l2.098-2.16l.745.695l-2.135 2.111zM4.562 18.72l2.14-2.117l.664.652l-2.08 2.179z"/>
-      </svg>
-    </span>
-  </button>
+      <div class="flex items-center gap-3">
+        <a href="{{ url_for('home') }}"
+           class="text-xs md:text-sm text-slate-700 hover:text-slate-900 cursor-pointer">
+          Beranda
+        </a>
+        <a href="{{ url_for('panduan') }}"
+          class="text-xs md:text-sm text-slate-700 hover:text-slate-900 cursor-pointer">
+          Panduan
+        </a>
+        <button
+          id="themeToggle"
+          type="button"
+          class="inline-flex items-center justify-center rounded-full border border-slate-300
+                 bg-white/80 px-2.5 py-2 cursor-pointer text-slate-700 hover:bg-slate-100
+                 dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100">
+          <span id="themeToggleIcon" class="inline-flex"></span>
+        </button>
+      </div>
+    </nav>
 
-  <div class="max-w-6xl mx-auto px-4 py-10">
-    <header class="mb-8">
-      <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">
-        Sistem Pendukung Keputusan
-      </p>
-      <h1 class="text-2xl md:text-3xl font-semibold text-slate-900">
-        Identifikasi Mahasiswa yang Memerlukan Bimbingan Akademik Tambahan
-      </h1>
-      <p class="mt-3 text-sm md:text-base text-slate-600 max-w-3xl">
-        Aplikasi ini mengintegrasikan <b>K-Means</b>, <b>AHP</b>, dan <b>TOPSIS</b>
-        untuk mengelompokkan mahasiswa berdasarkan tingkat risiko akademik dan
-        menghasilkan ranking prioritas bimbingan secara objektif dan transparan.
-      </p>
+    <header class="mb-8 flex items-start justify-between gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">
+          Sistem Pendukung Keputusan
+        </p>
+        <h1 class="text-2xl md:text-3xl font-semibold text-slate-900">
+          Identifikasi Mahasiswa yang Memerlukan Bimbingan Akademik Tambahan
+        </h1>
+        <p class="mt-3 text-sm md:text-base text-slate-600 max-w-3xl">
+          Aplikasi ini mengintegrasikan <b>K-Means</b>, <b>AHP</b>, dan <b>TOPSIS</b>
+          untuk mengelompokkan mahasiswa berdasarkan tingkat risiko akademik dan
+          menghasilkan ranking prioritas bimbingan secara objektif dan transparan.
+        </p>
+      </div>
     </header>
 
     <main class="space-y-6">
@@ -145,31 +226,93 @@
 
         <div class="grid md:grid-cols-2 gap-4 text-xs md:text-sm text-slate-700">
           <div class="space-y-1.5">
-            <p><b>Admission Year</b> – tahun masuk universitas (indikasi angkatan dan lama studi).</p>
-            <p><b>Age</b> – usia mahasiswa.</p>
-            <p><b>HSC Passing Year</b> – tahun kelulusan sekolah menengah atas.</p>
-            <p><b>Current Semester</b> – posisi semester saat ini.</p>
-            <p><b>Scholarship</b> – status beasiswa (ya/tidak).</p>
-            <p><b>Study Hours &amp; Study Frequency</b> – durasi dan frekuensi belajar harian.</p>
-            <p><b>Preferred Learning Mode</b> – preferensi mode belajar (offline/online).</p>
-            <p><b>Social Media (hours/day)</b> – intensitas penggunaan media sosial per hari.</p>
-            <p><b>English Proficiency</b> – tingkat kemampuan bahasa Inggris.</p>
-            <p><b>Class Attendance</b> – persentase kehadiran di kelas.</p>
+
+            <p><b>Admission Year</b> – tahun masuk universitas.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-green-100 text-green-700">Benefit</span>
+            </p>
+
+            <p><b>Age</b> – usia mahasiswa.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>HSC Passing Year</b> – tahun kelulusan SMA.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-green-100 text-green-700">Benefit</span>
+            </p>
+
+            <p><b>Current Semester</b> – posisi semester saat ini.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>Scholarship</b> – status beasiswa.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>Study Hours</b> – durasi belajar harian.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>Study Frequency</b> – frekuensi belajar.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>Preferred Learning Mode</b> – mode belajar (offline/online).
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>Social Media (hours/day)</b> – penggunaan media sosial.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-green-100 text-green-700">Benefit</span>
+            </p>
+
+            <p><b>English Proficiency</b> – kemampuan bahasa Inggris.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>Class Attendance</b> – persentase kehadiran.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
           </div>
 
           <div class="space-y-1.5">
-            <p><b>Probation History</b> – riwayat pernah masuk masa percobaan akademik.</p>
-            <p><b>Consultancy Attendance</b> – kebiasaan berkonsultasi dengan dosen.</p>
-            <p><b>Skill Development Hours</b> – jam pengembangan skill di luar perkuliahan.</p>
-            <p><b>Co-Curriculum Activities</b> – keterlibatan kegiatan ko-kurikuler.</p>
-            <p><b>Health Issues</b> – kondisi kesehatan yang berpotensi mengganggu studi.</p>
-            <p><b>Previous SGPA &amp; Current CGPA</b> – performa akademik historis dan terkini.</p>
-            <p><b>Completed Credits</b> – jumlah SKS yang sudah diselesaikan.</p>
-            <p><b>Family Income</b> – indikasi kondisi ekonomi keluarga.</p>
+
+            <p><b>Probation History</b> – riwayat probation.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-green-100 text-green-700">Benefit</span>
+            </p>
+
+            <p><b>Consultancy Attendance</b> – konsultasi dosen.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>Skill Development Hours</b> – jam pengembangan skill.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>Co-Curriculum Activities</b> – aktivitas ko-kurikuler.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>Health Issues</b> – masalah kesehatan.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-green-100 text-green-700">Benefit</span>
+            </p>
+
+            <p><b>Previous SGPA</b> – nilai SGPA sebelumnya.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>Current CGPA</b> – nilai CGPA saat ini.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>Completed Credits</b> – total SKS yang telah diselesaikan.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
+
+            <p><b>Family Income</b> – pendapatan keluarga.
+              <span class="ml-1 px-2 py-0.5 text-[10px] rounded-md font-medium bg-red-100 text-red-700">Cost</span>
+            </p>
           </div>
         </div>
 
-        <p class="mt-4 text-[11px] md:text-xs text-slate-500">
+        <p class="mt-4 text-[11px] md:text-xs text-slate-500 dark:text-slate-400">
           Setiap kriteria diklasifikasikan sebagai <b>benefit</b>, <b>cost</b>, atau <b>neutral</b>
           dalam perhitungan indeks kebutuhan bimbingan dan TOPSIS, sehingga kontribusi risiko
           dapat dihitung secara konsisten.
@@ -181,7 +324,7 @@
         <a href="{{ url_for('upload') }}"
            class="inline-flex items-center justify-center rounded-xl px-4 py-2.5
                   text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800
-                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500">
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100">
           Mulai
         </a>
 
@@ -193,46 +336,48 @@
   </div>
 
   <script>
-    function setupThemeToggle() {
-      const btn = document.getElementById('theme-toggle');
-      const iconMoon = document.getElementById('icon-moon');
-      const iconSun = document.getElementById('icon-sun');
-      if (!btn || !iconMoon || !iconSun) return;
+  (function () {
+    const root = document.documentElement;
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initial = stored || (prefersDark ? 'dark' : 'light');
+    root.dataset.theme = initial;
 
-      function applyIcon(theme) {
-        // current mode:
-        // - light -> show moon (untuk ganti ke dark)
-        // - dark  -> show sun (untuk ganti ke light)
-        if (theme === 'dark') {
-          iconSun.classList.remove('hidden');
-          iconMoon.classList.add('hidden');
-        } else {
-          iconMoon.classList.remove('hidden');
-          iconSun.classList.add('hidden');
-        }
+    function setIcon(theme) {
+      const iconSpan = document.getElementById('themeToggleIcon');
+      if (!iconSpan) return;
+
+      if (theme === 'dark') {
+        /* DARK MODE SEDANG AKTIF → tampilkan ICON MATAHARI (untuk ganti ke light) */
+        iconSpan.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+  <path fill="currentColor" d="M12 16q-1.671 0-2.835-1.164Q8 13.67 8 12t1.165-2.835T12 8t2.836 1.165T16 12t-1.164 2.836T12 16m-7-3.5H1.5v-1H5zm17.5 0H19v-1h3.5zM11.5 5V1.5h1V5zm0 17.5V19h1v3.5zM6.746 7.404l-2.16-2.098l.695-.745l2.111 2.135zM18.72 19.439l-2.117-2.141l.652-.702l2.16 2.098zM16.596 6.745l2.098-2.16l.745.695l-2.135 2.111zM4.562 18.72l2.14-2.117l.664.652l-2.08 2.179z"/>
+</svg>`;
+      } else {
+        /* LIGHT MODE SEDANG AKTIF → tampilkan ICON BULAN (untuk ganti ke dark) */
+        iconSpan.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+  <path fill="currentColor" d="M12.058 20q-3.334 0-5.667-2.333T4.058 12q0-3.039 1.98-5.27t4.904-2.634q.081 0 .159.006t.153.017q-.506.706-.801 1.57T10.158 7.5q0 2.667 1.866 4.533t4.534 1.867q.951 0 1.813-.295t1.548-.801q.012.075.017.153t.006.159q-.384 2.923-2.615 4.903T12.057 20"/>
+</svg>`;
       }
-
-      let currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-      applyIcon(currentTheme);
-
-      btn.addEventListener('click', () => {
-        currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        const next = currentTheme === 'dark' ? 'light' : 'dark';
-
-        if (next === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-        try {
-          localStorage.setItem('theme', next);
-        } catch (e) {}
-
-        applyIcon(next);
-      });
     }
 
-    document.addEventListener('DOMContentLoaded', setupThemeToggle);
-  </script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const current = root.dataset.theme === 'dark' ? 'dark' : 'light';
+      setIcon(current);
+
+      const btn = document.getElementById('themeToggle');
+      if (!btn) return;
+
+      btn.addEventListener('click', function () {
+        const now = root.dataset.theme === 'dark' ? 'dark' : 'light';
+        const next = now === 'dark' ? 'light' : 'dark';
+        root.dataset.theme = next;
+        localStorage.setItem('theme', next);
+        setIcon(next);
+      });
+    });
+  })();
+</script>
 </body>
 </html>

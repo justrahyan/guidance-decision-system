@@ -2,171 +2,486 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Upload Dataset Mahasiswa</title>
 
-  <!-- Apply saved theme -->
-  <script>
-    (function () {
-      try {
-        const saved = localStorage.getItem('theme') || 'light';
-        if (saved === 'dark') {
-          document.documentElement.classList.add('dark');
-        }
-      } catch (e) {}
-    })();
-  </script>
-
-  <!-- DM Sans -->
+  <!-- DM Sans + Tailwind + theme script -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
   <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --fg: #0f172a;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --muted: #64748b;
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #020617;
+      --fg: #e5e7eb;
+      --card-bg: #020617;
+      --border: #1f2937;
+      --muted: #9ca3af;
+    }
     body {
       font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: var(--bg);
+      color: var(--fg);
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    [data-theme="dark"] .bg-white,
+    [data-theme="dark"] .bg-slate-50,
+    [data-theme="dark"] .bg-slate-100 {
+      background-color: var(--card-bg) !important;
+    }
+    [data-theme="dark"] .text-slate-900 {
+      color: var(--fg) !important;
+    }
+    [data-theme="dark"] .text-slate-700,
+    [data-theme="dark"] .text-slate-600,
+    [data-theme="dark"] .text-slate-500 {
+      color: var(--muted) !important;
+    }
+    [data-theme="dark"] .border-slate-200,
+    [data-theme="dark"] .border-slate-300 {
+      border-color: var(--border) !important;
     }
 
-    /* Dark overrides (same set) */
-    .dark body {
-      background-color: #020617;
+    :root[data-theme="dark"] table {
+      color: var(--fg);
+    }
+
+    /* Header tabel */
+    :root[data-theme="dark"] table thead tr {
+      background-color: #0f172a !important; /* slate-900 */
+      color: var(--fg) !important;
+    }
+
+    /* Background setiap baris tabel */
+    :root[data-theme="dark"] table tbody tr {
+      background-color: #111827 !important; /* slate-900 sedikit lebih terang */
+      border-color: #1f2937 !important;     /* border slate-800 */
+    }
+
+    /* Even rows sedikit lebih terang */
+    :root[data-theme="dark"] table tbody tr:nth-child(even) {
+      background-color: #1e293b !important; /* slate-700 */
+    }
+
+    /* Hover row */
+    :root[data-theme="dark"] table tbody tr:hover {
+      background-color: #334155 !important; /* slate-600 */
+    }
+
+    /* Cell border */
+    :root[data-theme="dark"] table th,
+    :root[data-theme="dark"] table td {
+      border-color: #1f2937 !important;  /* slate-800 */
+    }
+
+    /* ===== DROPZONE DEFAULT (LIGHT / DARK) ===== */
+    #drop-zone {
+      background-color: rgba(248, 250, 252, 0.9);  /* bg-slate-50 */
+      border-color: #d1d5db;                       /* slate-300 */
+      color: #0f172a;                              /* text-slate-900 */
+    }
+    #drop-zone p {
+      color: #4b5563; /* slate-600 */
+    }
+
+    :root[data-theme="dark"] #drop-zone {
+      background-color: rgba(15, 23, 42, 0.9);  /* slate-900 */
+      border-color: #4b5563;                    /* slate-600 */
       color: #e5e7eb;
     }
-    .dark .bg-slate-50 {
-      background-color: #020617 !important;
+    :root[data-theme="dark"] #drop-zone p {
+      color: #e5e7eb;
     }
-    .dark .bg-white {
-      background-color: #020617 !important;
+
+    /* HOVER */
+    #drop-zone.drop-zone--hover {
+      background-color: rgba(241, 245, 249, 0.9);
+      border-color: #94a3b8;
     }
-    .dark .text-slate-900 {
-      color: #e5e7eb !important;
+    :root[data-theme="dark"] #drop-zone.drop-zone--hover {
+      background-color: #020617;
+      border-color: #e5e7eb;
     }
-    .dark .text-slate-700 {
-      color: #cbd5f5 !important;
+
+    /* UPLOADED (HIJAU) */
+    #drop-zone.drop-zone--uploaded {
+      background-color: #ecfdf3;
+      border-color: #22c55e;
     }
-    .dark .text-slate-600 {
-      color: #9ca3af !important;
+    :root[data-theme="dark"] #drop-zone.drop-zone--uploaded {
+      background-color: rgba(34, 197, 94, 0.18);
+      border-color: #22c55e;
     }
-    .dark .text-slate-500 {
-      color: #6b7280 !important;
+    #drop-zone.drop-zone--uploaded p {
+      color: #0f172a;
     }
-    .dark .border-slate-200,
-    .dark .border-slate-300 {
-      border-color: #1f2937 !important;
+    :root[data-theme="dark"] #drop-zone.drop-zone--uploaded p {
+      color: #e5e7eb;
     }
-    .dark .bg-slate-100 {
-      background-color: #020617 !important;
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      html, body {
+        overflow-x: hidden;
+      }
+
+      .max-w-7xl.mx-auto {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      nav.flex.items-center.justify-between {
+        flex-wrap: nowrap !important;
+      }
+      nav > a {
+        flex-shrink: 1 !important;
+        min-width: 0 !important;
+      }
+      nav > div {
+        flex-shrink: 0 !important;
+      }
+      nav.flex.items-center.justify-between {
+        gap: 0.5rem !important;
+      }
+      nav a span.hidden.sm\:inline {
+        display: none !important;
+      }
+
+      .max-w-xl.mx-auto {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+      }
+
+      form.bg-white.rounded-2xl.shadow-sm.border {
+        padding: 0.875rem !important;
+      }
+
+      #drop-zone {
+        width: 100%;
+      }
+
+      p.text-\[11px\].md\:text-xs.text-slate-500 {
+        font-size: 0.7rem;
+      }
     }
-    .dark .shadow-sm {
-      box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.9), 0 1px 2px -1px rgba(15, 23, 42, 0.9) !important;
+
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .max-w-7xl.mx-auto {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
     }
   </style>
-</head>
-<body class="min-h-screen bg-slate-50">
-
-  <!-- THEME TOGGLE BUTTON -->
-  <button
-    id="theme-toggle"
-    type="button"
-    class="fixed z-50 top-4 right-4 inline-flex items-center justify-center rounded-full
-           border border-slate-300 bg-white/80 px-2.5 py-2 shadow-sm hover:bg-slate-100
-           backdrop-blur-sm transition"
-    aria-label="Toggle theme">
-    <span id="icon-moon" class="hidden">
-      <!-- Moon -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12.058 20q-3.334 0-5.667-2.333T4.058 12q0-3.039 1.98-5.27t4.904-2.634q.081 0 .159.006t.153.017q-.506.706-.801 1.57T10.158 7.5q0 2.667 1.866 4.533t4.534 1.867q.951 0 1.813-.295t1.548-.801q.012.075.017.153t.006.159q-.384 2.923-2.615 4.903T12.057 20"/>
-      </svg>
-    </span>
-    <span id="icon-sun" class="hidden">
-      <!-- Sun -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12 16q-1.671 0-2.835-1.164Q8 13.67 8 12t1.165-2.835T12 8t2.836 1.165T16 12t-1.164 2.836T12 16m-7-3.5H1.5v-1H5zm17.5 0H19v-1h3.5zM11.5 5V1.5h1V5zm0 17.5V19h1v3.5zM6.746 7.404l-2.16-2.098l.695-.745l2.111 2.135zM18.72 19.439l-2.117-2.141l.652-.702l2.16 2.098zM16.596 6.745l2.098-2.16l.745.695l-2.135 2.111zM4.562 18.72l2.14-2.117l.664.652l-2.08 2.179z"/>
-      </svg>
-    </span>
-  </button>
-
-  <div class="max-w-xl mx-auto px-4 py-10">
-    <h1 class="text-2xl font-semibold text-slate-900 mb-2">
-      Upload Dataset Mahasiswa
-    </h1>
-    <p class="text-sm text-slate-600 mb-6">
-      Silahkan upload file Excel (.xlsx)
-    </p>
-
-    <form method="post" enctype="multipart/form-data"
-          class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-2">
-          Pilih file dataset
-        </label>
-        <input
-          type="file"
-          name="dataset"
-          accept=".xlsx"
-          class="block w-full text-sm text-slate-700 file:mr-4 file:py-2 file:px-4
-                 file:rounded-full file:border-0 file:text-sm file:font-medium
-                 file:bg-slate-900 file:text-white hover:file:bg-slate-800" />
-      </div>
-
-      {% if error %}
-        <p class="text-sm font-medium text-red-600">
-          {{ error }}
-        </p>
-      {% endif %}
-
-      <div class="pt-2">
-        <button
-          type="submit"
-          class="inline-flex items-center justify-center rounded-xl px-4 py-2.5
-                 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800
-                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500">
-          Upload &amp; Lanjut ke AHP
-        </button>
-      </div>
-    </form>
-  </div>
 
   <script>
-    function setupThemeToggle() {
-      const btn = document.getElementById('theme-toggle');
-      const iconMoon = document.getElementById('icon-moon');
-      const iconSun = document.getElementById('icon-sun');
-      if (!btn || !iconMoon || !iconSun) return;
+    (function () {
+      const root = document.documentElement;
+      const stored = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const initial = stored || (prefersDark ? 'dark' : 'light');
+      root.dataset.theme = initial;
 
-      function applyIcon(theme) {
+      function setIcon(theme) {
+        const iconSpan = document.getElementById('themeToggleIcon');
+        if (!iconSpan) return;
+
         if (theme === 'dark') {
-          iconSun.classList.remove('hidden');
-          iconMoon.classList.add('hidden');
+          iconSpan.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+  <path fill="currentColor" d="M12 16q-1.671 0-2.835-1.164Q8 13.67 8 12t1.165-2.835T12 8t2.836 1.165T16 12t-1.164 2.836T12 16m-7-3.5H1.5v-1H5zm17.5 0H19v-1h3.5zM11.5 5V1.5h1V5zm0 17.5V19h1v3.5zM6.746 7.404l-2.16-2.098l.695-.745l2.111 2.135zM18.72 19.439l-2.117-2.141l.652-.702l2.16 2.098zM16.596 6.745l2.098-2.16l.745.695l-2.135 2.111zM4.562 18.72l2.14-2.117l.664.652l-2.08 2.179z"/>
+</svg>`;
         } else {
-          iconMoon.classList.remove('hidden');
-          iconSun.classList.add('hidden');
+          iconSpan.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+  <path fill="currentColor" d="M12.058 20q-3.334 0-5.667-2.333T4.058 12q0-3.039 1.98-5.27t4.904-2.634q.081 0 .159.006t.153.017q-.506.706-.801 1.57T10.158 7.5q0 2.667 1.866 4.533t4.534 1.867q.951 0 1.813-.295t1.548-.801q.012.075.017.153t.006.159q-.384 2.923-2.615 4.903T12.057 20"/>
+</svg>`;
         }
       }
 
-      let currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-      applyIcon(currentTheme);
+      document.addEventListener('DOMContentLoaded', function () {
+        const current = root.dataset.theme === 'dark' ? 'dark' : 'light';
+        setIcon(current);
 
-      btn.addEventListener('click', () => {
-        currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        const next = currentTheme === 'dark' ? 'light' : 'dark';
+        const btn = document.getElementById('themeToggle');
+        if (!btn) return;
+        btn.classList.add('cursor-pointer');
 
-        if (next === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-        try {
+        btn.addEventListener('click', function () {
+          const now = root.dataset.theme === 'dark' ? 'dark' : 'light';
+          const next = now === 'dark' ? 'light' : 'dark';
+          root.dataset.theme = next;
           localStorage.setItem('theme', next);
-        } catch (e) {}
-
-        applyIcon(next);
+          setIcon(next);
+        });
       });
-    }
+    })();
+  </script>
+</head>
+<body class="min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 py-4 md:py-6">
+    <!-- NAVBAR -->
+    <nav class="flex items-center justify-between gap-3 mb-4 md:mb-6">
+      <a href="{{ url_for('home') }}"
+         class="flex items-center gap-2 text-sm md:text-base font-semibold text-slate-900 cursor-pointer">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white text-xs md:text-sm">
+          SPK
+        </span>
+        <span class="hidden sm:inline text-slate-900">
+          SPK Bimbingan Mahasiswa
+        </span>
+      </a>
 
-    document.addEventListener('DOMContentLoaded', setupThemeToggle);
+      <div class="flex items-center gap-3">
+        <a href="{{ url_for('home') }}"
+           class="text-xs md:text-sm text-slate-700 hover:text-slate-900 cursor-pointer">
+          Beranda
+        </a>
+        <a href="{{ url_for('panduan') }}"
+           class="text-xs md:text-sm text-slate-700 hover:text-slate-900 cursor-pointer">
+          Panduan
+        </a>
+        <button
+          id="themeToggle"
+          type="button"
+          class="inline-flex items-center justify-center rounded-full border border-slate-300
+                 bg-white/80 px-2.5 py-2 cursor-pointer text-slate-700 hover:bg-slate-100
+                 dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100">
+          <span id="themeToggleIcon" class="inline-flex"></span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Upload Dataset -->
+    <div class="max-w-xl mx-auto pb-10">
+      <h1 class="text-xl md:text-2xl font-semibold text-slate-900 mb-2">
+        Upload Dataset Mahasiswa
+      </h1>
+      <p class="text-xs md:text-sm text-slate-600 mb-4">
+        Silakan upload file Excel (.xlsx) yang berisi data mahasiswa.
+      </p>
+
+      <p class="text-[11px] md:text-xs text-slate-500 mb-2 bg-white 
+                border border-slate-200  px-3 py-2 rounded-lg">
+        Jika Anda belum memiliki dataset mahasiswa yang sesuai format sistem, Anda dapat
+        menggunakan file contoh berikut untuk melakukan pengujian.
+      </p>
+
+      <div class="mb-4">
+        <a href="{{ url_for('download_dataset') }}"
+           class="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs md:text-sm
+                  font-medium text-white bg-slate-900 hover:bg-slate-800
+                  cursor-pointer dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100">
+          <span>Download dataset (.xlsx)</span>
+        </a>
+      </div>
+
+      <form method="post" enctype="multipart/form-data"
+            class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 space-y-4">
+        <div>
+          <label class="block text-xs md:text-sm font-medium text-slate-700 mb-2">
+            Pilih file dataset
+          </label>
+
+          <!-- Drop Zone File -->
+          <div id="drop-zone"
+               class="cursor-pointer flex flex-col items-center justify-center gap-2
+                      rounded-2xl border border-dashed
+                      px-4 py-6
+                      text-center transition-colors text-xs md:text-sm">
+            <div class="inline-flex items-center justify-center rounded-full bg-slate-900 text-white p-2 mb-1">
+              <!-- Upload Icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M11 16V7.85l-2.6 2.6L7 9l5-5l5 5l-1.4 1.45l-2.6-2.6V16zm-5 4q-.825 0-1.412-.587T4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413T18 20z"/>
+              </svg>
+            </div>
+            <p class="font-medium" id="dropzone-title">
+              Upload atau drag and drop file
+            </p>
+            <p id="file-name" class="text-[11px] md:text-[12px]">
+              Belum ada file yang dipilih
+            </p>
+
+            <input
+              id="file-input"
+              type="file"
+              name="dataset"
+              accept=".xlsx"
+              class="hidden" />
+          </div>
+
+          <p class="mt-2 text-[11px] md:text-xs text-slate-500">
+            Hanya format <code>.xlsx</code> yang diterima.
+          </p>
+
+          <!-- PREVIEW LANGSUNG DI BAWAH DROPZONE -->
+          {% if preview_columns and preview_rows %}
+          <div class="mt-4 space-y-2">
+            <h2 class="text-xs md:text-sm font-semibold">
+              Pratinjau Dataset (5 baris pertama)
+            </h2>
+            <p class="text-[11px] md:text-xs text-slate-500">
+              {% if preview_filename %}<span class="font-medium">{{ preview_filename }}</span>{% endif %}
+              {% if preview_shape %} · {{ preview_shape[0] }} baris{% endif %}
+            </p>
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-0 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-xs md:text-sm">
+                  <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50 text-left">
+                      {% for col in preview_columns %}
+                        <th class="px-3 py-2 whitespace-nowrap font-semibold">{{ col }}</th>
+                      {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in preview_rows %}
+                      <tr class="border-b border-slate-100 odd:bg-white even:bg-slate-50">
+                        {% for col in preview_columns %}
+                          <td class="px-3 py-2 whitespace-nowrap">
+                            {{ row.get(col, "") }}
+                          </td>
+                        {% endfor %}
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {% if preview_error %}
+              <p class="text-xs md:text-sm font-medium text-red-600">{{ preview_error }}</p>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+
+        {% if error %}
+          <p class="text-xs md:text-sm font-medium text-red-600">
+            {{ error }}
+          </p>
+        {% endif %}
+
+        <div class="pt-2 flex items-center justify-between gap-3 flex-wrap">
+          {% if uploaded %}
+            <!-- Tombol Lanjut -->
+            <button
+              type="button"
+              onclick="window.location.href='{{ url_for('index') }}'"
+              class="inline-flex items-center justify-center rounded-xl px-4 py-2.5
+                    text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500
+                    cursor-pointer dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100">
+              Lanjut ke Perhitungan Bobot
+            </button>
+
+            <!-- Tombol Reset -->
+            <a href="{{ url_for('reset_dataset') }}"
+              onclick="return confirm('Yakin ingin menghapus dataset yang sudah diupload?');"
+              class="inline-flex items-center justify-center rounded-xl px-4 py-2.5
+                      text-sm font-semibold text-white bg-red-600 hover:bg-red-500
+                      cursor-pointer dark:bg-red-700 dark:hover:bg-red-600">
+              Reset Dataset
+            </a>
+
+          {% else %}
+            <!-- Tombol Lanjut versi disabled -->
+            <button
+              type="button"
+              disabled
+              class="inline-flex items-center justify-center rounded-xl px-4 py-2.5
+                    text-sm font-semibold bg-slate-300 text-slate-500
+                    cursor-not-allowed dark:bg-slate-700 dark:text-slate-400">
+              Lanjut ke Perhitungan Bobot
+            </button>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Drag & Drop upload + auto-submit + indikator uploaded
+    document.addEventListener('DOMContentLoaded', function () {
+      const dropZone = document.getElementById('drop-zone');
+      const fileInput = document.getElementById('file-input');
+      const fileNameEl = document.getElementById('file-name');
+      const form = document.querySelector('form[method="post"][enctype="multipart/form-data"]');
+
+      if (!dropZone || !fileInput || !form) return;
+
+      // nilai dari backend (Jinja)
+      const uploaded = {{ 'true' if uploaded else 'false' }};
+      const previewFilename = "{{ preview_filename or '' }}";
+
+      // state awal: kalau sudah ada dataset di server -> tampilkan nama + gaya uploaded
+      if (uploaded) {
+        dropZone.classList.add('drop-zone--uploaded');
+        if (previewFilename) {
+          fileNameEl.textContent = previewFilename;
+        }
+      }
+
+      function updateFileName() {
+        if (fileInput.files && fileInput.files.length > 0) {
+          fileNameEl.textContent = fileInput.files[0].name;
+        } else if (uploaded && previewFilename) {
+          fileNameEl.textContent = previewFilename;
+        } else {
+          fileNameEl.textContent = 'Belum ada file yang dipilih';
+        }
+      }
+
+      // Klik area dropzone = klik input file
+      dropZone.addEventListener('click', function () {
+        fileInput.click();
+      });
+
+      // Kalau user pilih file dari dialog → langsung submit
+      fileInput.addEventListener('change', function () {
+        updateFileName();
+        if (fileInput.files && fileInput.files.length > 0) {
+          form.submit(); // AUTO SUBMIT
+        }
+      });
+
+      // Efek hover drag
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.add('drop-zone--hover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.remove('drop-zone--hover');
+        });
+      });
+
+      // Drag & drop -> submit
+      dropZone.addEventListener('drop', function (e) {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files.length > 0) {
+          fileInput.files = dt.files;
+          updateFileName();
+          form.submit();
+        }
+      });
+    });
   </script>
 </body>
 </html>

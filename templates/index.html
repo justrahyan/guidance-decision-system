@@ -1,20 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SPK AHP–TOPSIS Mahasiswa</title>
-
-  <!-- Apply saved theme -->
-  <script>
-    (function () {
-      try {
-        const saved = localStorage.getItem('theme') || 'light';
-        if (saved === 'dark') {
-          document.documentElement.classList.add('dark');
-        }
-      } catch (e) {}
-    })();
-  </script>
 
   <!-- DM Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,78 +14,222 @@
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
   <style>
-    body { font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --fg: #0f172a;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --muted: #64748b;
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #020617;
+      --fg: #e5e7eb;
+      --card-bg: #020617;
+      --border: #1f2937;
+      --muted: #9ca3af;
+    }
+    body {
+      font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: var(--bg);
+      color: var(--fg);
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    /* Override beberapa Tailwind supaya bener-bener ikut theme */
+    [data-theme="dark"] .bg-white,
+    [data-theme="dark"] .bg-slate-50,
+    [data-theme="dark"] .bg-slate-100 {
+      background-color: var(--card-bg) !important;
+    }
+    [data-theme="dark"] .text-slate-900 {
+      color: var(--fg) !important;
+    }
+    [data-theme="dark"] .text-slate-700,
+    [data-theme="dark"] .text-slate-600,
+    [data-theme="dark"] .text-slate-500 {
+      color: var(--muted) !important;
+    }
+    [data-theme="dark"] .border-slate-200,
+    [data-theme="dark"] .border-slate-300 {
+      border-color: var(--border) !important;
+    }
 
-    .dark body {
-      background-color: #020617;
-      color: #e5e7eb;
+    /* ====== STYLE TABEL KHUSUS (LIGHT & DARK) ====== */
+    .table-zebra {
+      width: 100%;
+      border-collapse: collapse;
     }
-    .dark .bg-slate-50 {
-      background-color: #020617 !important;
+    .table-zebra th,
+    .table-zebra td {
+      border-bottom: 1px solid var(--border);
     }
-    .dark .bg-white {
-      background-color: #020617 !important;
+    .table-zebra thead tr {
+      background-color: rgba(148, 163, 184, 0.16);
     }
-    .dark .text-slate-900 {
-      color: #e5e7eb !important;
+    :root[data-theme="dark"] .table-zebra thead tr {
+      background-color: rgba(15, 23, 42, 0.95);
     }
-    .dark .text-slate-700 {
-      color: #cbd5f5 !important;
+    .table-zebra tbody tr:nth-child(odd) {
+      background-color: rgba(148, 163, 184, 0.06);
     }
-    .dark .text-slate-600 {
-      color: #9ca3af !important;
+    .table-zebra tbody tr:nth-child(even) {
+      background-color: transparent;
     }
-    .dark .text-slate-500 {
-      color: #6b7280 !important;
+    :root[data-theme="dark"] .table-zebra tbody tr:nth-child(odd) {
+      background-color: rgba(15, 23, 42, 0.85);
     }
-    .dark .border-slate-200,
-    .dark .border-slate-300 {
-      border-color: #1f2937 !important;
+    :root[data-theme="dark"] .table-zebra tbody tr:nth-child(even) {
+      background-color: rgba(15, 23, 42, 0.7);
     }
-    .dark .bg-slate-100 {
-      background-color: #020617 !important;
+
+    /* Responsive */
+    /* Mobile (≤ 640px) */
+    @media (max-width: 640px) {
+      html, body {
+        overflow-x: hidden;
+      }
+
+      /* Container utama sedikit rapat di mobile */
+      .max-w-7xl.mx-auto {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      /* Navbar supaya bisa turun 2 baris */
+      nav.flex.items-center.justify-between {
+        flex-wrap: nowrap !important;
+      }
+
+      /* Logo + text kiri jangan melebar */
+      nav > a {
+        flex-shrink: 1 !important;
+        min-width: 0 !important;
+      }
+
+      /* Container kanan (beranda + toggle) jangan memaksa melebar */
+      nav > div {
+        flex-shrink: 0 !important;
+      }
+
+      /* Hilangkan jarak besar agar muat */
+      nav.flex.items-center.justify-between {
+        gap: 0.5rem !important;
+      }
+
+      /* Teks “SPK Bimbingan Mahasiswa” disembunyikan pada layar kecil */
+      nav a span.hidden.sm\:inline {
+        display: none !important;
+      }
+
+      /* Header judul + deskripsi jadi kolom */
+      header.mb-6.flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      header.mb-6.flex h1 {
+        font-size: 1.35rem;
+        line-height: 1.4;
+      }
+
+      header.mb-6.flex p {
+        font-size: 0.875rem;
+      }
+
+      /* Card / form agak dipadatkan paddingnya di HP */
+      form.bg-white.rounded-2xl.shadow-sm.border {
+        padding: 0.875rem !important;
+      }
+
+      /* Wrapper tabel: scroll halus di HP */
+      .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Tabel AHP lebih kecil font & padding */
+      table.min-w-full {
+        font-size: 0.7rem;
+      }
+
+      .table-zebra th,
+      .table-zebra td,
+      table.min-w-full th,
+      table.min-w-full td {
+        padding: 0.25rem 0.35rem;
+        white-space: nowrap;
+      }
+
+      /* Keterangan teks di bawah tombol auto-fill supaya tidak mepet */
+      .flex.flex-col.items-start.gap-2 p.text-\[11px\] {
+        font-size: 0.7rem;
+      }
     }
-    .dark .shadow-sm {
-      box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.9), 0 1px 2px -1px rgba(15, 23, 42, 0.9) !important;
+
+    /* Tablet (641px – 1024px) */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .max-w-7xl.mx-auto {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+
+      header.mb-6.flex h1 {
+        font-size: 1.6rem;
+      }
+
+      table.min-w-full {
+        font-size: 0.8rem;
+      }
     }
   </style>
+
 </head>
 <body class="min-h-screen bg-slate-50">
+  <div class="max-w-7xl mx-auto px-4 py-4 md:py-6">
+    <nav class="flex items-center justify-between gap-3 mb-4 md:mb-6">
+      <a href="{{ url_for('home') }}"
+         class="flex items-center gap-2 text-sm md:text-base font-semibold text-slate-900 cursor-pointer">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white text-xs md:text-sm">
+          SPK
+        </span>
+        <span class="hidden sm:inline text-slate-900">
+          SPK Bimbingan Mahasiswa
+        </span>
+      </a>
 
-  <!-- THEME TOGGLE BUTTON -->
-  <button
-    id="theme-toggle"
-    type="button"
-    class="fixed z-50 top-4 right-4 inline-flex items-center justify-center rounded-full
-           border border-slate-300 bg-white/80 px-2.5 py-2 shadow-sm hover:bg-slate-100
-           backdrop-blur-sm transition"
-    aria-label="Toggle theme">
-    <span id="icon-moon" class="hidden">
-      <!-- Moon -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12.058 20q-3.334 0-5.667-2.333T4.058 12q0-3.039 1.98-5.27t4.904-2.634q.081 0 .159.006t.153.017q-.506.706-.801 1.57T10.158 7.5q0 2.667 1.866 4.533t4.534 1.867q.951 0 1.813-.295t1.548-.801q.012.075.017.153t.006.159q-.384 2.923-2.615 4.903T12.057 20"/>
-      </svg>
-    </span>
-    <span id="icon-sun" class="hidden">
-      <!-- Sun -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12 16q-1.671 0-2.835-1.164Q8 13.67 8 12t1.165-2.835T12 8t2.836 1.165T16 12t-1.164 2.836T12 16m-7-3.5H1.5v-1H5zm17.5 0H19v-1h3.5zM11.5 5V1.5h1V5zm0 17.5V19h1v3.5zM6.746 7.404l-2.16-2.098l.695-.745l2.111 2.135zM18.72 19.439l-2.117-2.141l.652-.702l2.16 2.098zM16.596 6.745l2.098-2.16l.745.695l-2.135 2.111zM4.562 18.72l2.14-2.117l.664.652l-2.08 2.179z"/>
-      </svg>
-    </span>
-  </button>
-
-  <div class="max-w-7xl mx-auto px-4 py-8">
-    <header class="mb-6">
-      <h1 class="text-2xl md:text-3xl font-semibold text-slate-900">
-        SPK Mahasiswa – AHP + TOPSIS + Clustering
-      </h1>
-      <p class="mt-2 text-sm text-slate-600 max-w-2xl">
-        Isi matriks perbandingan berpasangan (AHP) untuk 20 kriteria.
-        Semua sel di bagian atas diagonal (<code>i &lt; j</code>) wajib diisi.
-      </p>
-      <div class="mt-2 text-xs text-slate-500 bg-slate-100 inline-flex px-3 py-1 rounded-full">
-        Gunakan titik (&ldquo;.&rdquo;) sebagai pemisah desimal, contoh:
-        <span class="font-mono ml-1">3.5</span>
+      <div class="flex items-center gap-3">
+        <a href="{{ url_for('home') }}"
+          class="text-xs md:text-sm text-slate-700 hover:text-slate-900 cursor-pointer">
+          Beranda
+        </a>
+        <a href="{{ url_for('panduan') }}"
+          class="text-xs md:text-sm text-slate-700 hover:text-slate-900 cursor-pointer">
+          Panduan
+        </a>
+        <button
+          id="themeToggle"
+          type="button"
+          class="inline-flex items-center justify-center rounded-full border border-slate-300
+                 bg-white/80 px-2.5 py-2 cursor-pointer text-slate-700 hover:bg-slate-100
+                 dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100">
+          <span id="themeToggleIcon" class="inline-flex"></span>
+        </button>
+      </div>
+    </nav>
+    <header class="mb-6 flex items-start justify-between gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-semibold text-slate-900">
+          SPK Mahasiswa – AHP + TOPSIS + Clustering
+        </h1>
+        <p class="mt-2 text-sm text-slate-600 max-w-2xl">
+          Isi matriks perbandingan berpasangan (AHP) untuk 20 kriteria.
+          Semua sel di bagian atas diagonal (<code>i &lt; j</code>) wajib diisi.
+        </p>
+        <div class="mt-2 text-xs text-slate-500 bg-slate-100 inline-flex px-3 py-1 rounded-full">
+          Gunakan titik (&ldquo;.&rdquo;) sebagai pemisah desimal, contoh:
+          <span class="font-mono ml-1">3.5</span>
+        </div>
       </div>
     </header>
 
@@ -136,21 +269,21 @@
             id="btn-autofill-ahp"
             type="button"
             class="inline-flex items-center justify-center rounded-xl px-3 py-2
-                   text-xs md:text-sm font-semibold text-slate-800 bg-slate-100
-                   hover:bg-slate-200 border border-slate-300">
+                   text-xs md:text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800
+                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 cursor-pointer
+                   dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100">
             Isi otomatis dari matriks penelitian
           </button>
           <p class="text-[11px] text-slate-500 max-w-xs">
-            Tombol ini akan mengisi seluruh matriks AHP dengan nilai bawaan
-            sesuai matriks hasil perhitungan penelitianmu.
+            Tombol ini akan mengisi seluruh nilai AHP secara otomatis menggunakan bobot standar yang sudah disiapkan.
           </p>
         </div>
       </div>
 
       <div class="overflow-x-auto border border-slate-200 rounded-xl">
-        <table class="min-w-full text-[11px] md:text-xs border-collapse">
+        <table class="min-w-full text-[11px] md:text-xs border-collapse table-zebra">
           <thead>
-            <tr class="bg-slate-100 text-slate-700">
+            <tr>
               <th class="border border-slate-200 px-2 py-2 text-left sticky left-0 bg-slate-100 z-10">
                 Kriteria i \\ Kriteria j
               </th>
@@ -164,7 +297,7 @@
           <tbody>
           {% for ci in criteria %}
             {% set i = loop.index0 %}
-            <tr class="odd:bg-white even:bg-slate-50">
+            <tr>
               <th class="border border-slate-200 px-2 py-2 text-left sticky left-0 bg-inherit z-10">
                 {{ labels[ci] }}
               </th>
@@ -184,9 +317,7 @@
                       data-j="{{ cj }}"
                       required
                       class="w-20 md:w-24 border border-slate-300 rounded-lg px-1 py-0.5
-                             text-xs text-slate-800 bg-white
-                             focus:outline-none focus:ring-1
-                             focus:ring-slate-500 focus:border-slate-500"
+                             text-xs text-slate-500 bg-slate-50"
                     >
                   {% else %}
                     <input
@@ -216,7 +347,8 @@
           type="submit"
           class="inline-flex items-center justify-center rounded-xl px-4 py-2.5
                  text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800
-                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500">
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 cursor-pointer
+                 dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100">
           Hitung Ranking
         </button>
       </div>
@@ -228,43 +360,49 @@
   </div>
 
   <script>
-    function setupThemeToggle() {
-      const btn = document.getElementById('theme-toggle');
-      const iconMoon = document.getElementById('icon-moon');
-      const iconSun = document.getElementById('icon-sun');
-      if (!btn || !iconMoon || !iconSun) return;
+  (function () {
+    // =========================
+    // THEME TOGGLE (global)
+    // =========================
+    const root = document.documentElement;
+    const STORAGE_KEY = 'theme';
 
-      function applyIcon(theme) {
-        if (theme === 'dark') {
-          iconSun.classList.remove('hidden');
-          iconMoon.classList.add('hidden');
-        } else {
-          iconMoon.classList.remove('hidden');
-          iconSun.classList.add('hidden');
-        }
+    let stored = null;
+    try {
+      stored = localStorage.getItem(STORAGE_KEY);
+    } catch (e) {}
+    const prefersDark = window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initial = stored || (prefersDark ? 'dark' : 'light');
+    root.dataset.theme = initial;
+
+    function setIcon(theme) {
+      const iconSpan = document.getElementById('themeToggleIcon');
+      if (!iconSpan) return;
+
+      if (theme === 'dark') {
+        iconSpan.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+  <path fill="currentColor" d="M12 16q-1.671 0-2.835-1.164Q8 13.67 8 12t1.165-2.835T12 8t2.836 1.165T16 12t-1.164 2.836T12 16m-7-3.5H1.5v-1H5zm17.5 0H19v-1h3.5zM11.5 5V1.5h1V5zm0 17.5V19h1v3.5zM6.746 7.404l-2.16-2.098l.695-.745l2.111 2.135zM18.72 19.439l-2.117-2.141l.652-.702l2.16 2.098zM16.596 6.745l2.098-2.16l.745.695l-2.135 2.111zM4.562 18.72l2.14-2.117l.664.652l-2.08 2.179z"/>
+</svg>`;
+      } else {
+        iconSpan.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+  <path fill="currentColor" d="M12.058 20q-3.334 0-5.667-2.333T4.058 12q0-3.039 1.98-5.27t4.904-2.634q.081 0 .159.006t.153.017q-.506.706-.801 1.57T10.158 7.5q0 2.667 1.866 4.533t4.534 1.867q.951 0 1.813-.295t1.548-.801q.012.075.017.153t.006.159q-.384 2.923-2.615 4.903T12.057 20"/>
+</svg>`;
       }
+    }
 
-      let currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-      applyIcon(currentTheme);
-
-      btn.addEventListener('click', () => {
-        currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        const next = currentTheme === 'dark' ? 'light' : 'dark';
-
-        if (next === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-        try {
-          localStorage.setItem('theme', next);
-        } catch (e) {}
-        applyIcon(next);
-      });
+    function setTheme(theme) {
+      root.dataset.theme = theme;
+      try {
+        localStorage.setItem(STORAGE_KEY, theme);
+      } catch (e) {}
+      setIcon(theme);
     }
 
     // =========================
-    // Sinkronisasi input pairwise (dua arah)
+    // AHP: Sinkronisasi pairwise
     // =========================
     function setupPairwiseSync() {
       const mainInputs = document.querySelectorAll('input[data-pair]');
@@ -334,33 +472,33 @@
     }
 
     // =========================
-    // AUTO-FILL dari matriks penelitian (fixed)
+    // AUTO-FILL dari matriks penelitian
     // =========================
     function setupAutoFill() {
       const criteriaOrder = {{ criteria | tojson | safe }};
       const nCrit = criteriaOrder.length;
 
       const matrixText = `
-  AdmYear 1 1 1 1 1/2 1/2 1/2 1 1/2 1/2 1/2 1/2 1/2 1/2 1 1/2 1/3 1/3 1/2 1
-  Age 1 1 1/2 1/2 1/2 1/3 1/3 1/2 1/3 1/3 1/4 1/3 1/2 1/2 1 1/2 1/4 1/3 1/3 1/2
-  HSCYear 1 2 1 1 1/2 1/2 1/2 1 1/2 1/2 1/2 1/2 1 1/2 1 1/2 1/3 1/3 1/2 1
-  Semester 1 2 1 1 1/2 1/2 1/2 1 1/2 1/2 1/2 1/2 1 1/2 1 1/2 1/3 1/3 1/2 1
-  Scholarship 2 2 2 2 1 1/2 1 1/2 1 1 1/2 1 1 1 2 1/2 1/2 1/2 1 1
-  Study Hours 2 3 2 2 2 1 1 2 1 1 1 1 1 1 3 2 1/2 1/2 1 2
-  Study Frequency 2 3 2 2 1 1 1 2 1 1 1/2 1 1 1 3 1 1/2 1/2 1 1
-  Learn Mode 1 2 1 1 2 1/2 1/2 1 1/2 1/2 1/2 1/2 1/2 1/2 1 1/2 1/3 1/3 1/2 1/2
-  Social Media 2 3 2 2 1 1 1 2 1 1 1/2 1 1 1 3 1 1/2 1/2 1 1
-  English Skill 2 3 2 2 1 1 1 2 1 1 1/2 1 1 1 3 1 1/2 1/2 1 1
-  Attendance 2 4 2 2 2 1 2 2 2 2 1 1 1 2 4 2 1 1 2 2
-  Probation 2 3 2 2 1 1 1 2 1 1 1 1 1 1 3 1 1 1/2 1 2
-  Consultancy 2 2 1 1 1 1 1 2 1 1 1 1 1 1 3 1 1/2 1/2 1 1
-  Skill Hours 2 2 2 2 1 1 1 2 1 1 1/2 1 1 1 2 1 1/2 1/2 1 1
-  Co Curricular 1 1 1 1 1/2 1/3 1/3 1 1/3 1/3 1/4 1/3 1/3 1/2 1 1/2 1/4 1/4 1/3 1/2
-  Health Issues 2 2 2 2 2 1/2 1 2 1 1 1/2 1 1 1 2 1 1/2 1/2 1 1
-  SGPA 3 4 3 3 2 2 2 3 2 2 1 1 2 2 4 2 1 1 2 3
-  CGPA 3 3 3 3 2 2 2 3 2 2 1 2 2 2 4 2 1 1 2 3
-  Credits 2 3 2 2 1 1 1 2 1 1 1/2 1 1 1 3 1 1/2 1/2 1 1
-  Family Income 1 2 1 1 1 1/2 1 2 1 1 1/2 1/2 1 1 2 1 1/3 1/3 1 1
+AdmYear 1 1 1 1 1/2 1/2 1/2 1 1/2 1/2 1/2 1/2 1/2 1/2 1 1/2 1/3 1/3 1/2 1
+Age 1 1 1/2 1/2 1/2 1/3 1/3 1/2 1/3 1/3 1/4 1/3 1/2 1/2 1 1/2 1/4 1/3 1/3 1/2
+HSCYear 1 2 1 1 1/2 1/2 1/2 1 1/2 1/2 1/2 1/2 1 1/2 1 1/2 1/3 1/3 1/2 1
+Semester 1 2 1 1 1/2 1/2 1/2 1 1/2 1/2 1/2 1/2 1 1/2 1 1/2 1/3 1/3 1/2 1
+Scholarship 2 2 2 2 1 1/2 1 1/2 1 1 1/2 1 1 1 2 1/2 1/2 1/2 1 1
+Study Hours 2 3 2 2 2 1 1 2 1 1 1 1 1 1 3 2 1/2 1/2 1 2
+Study Frequency 2 3 2 2 1 1 1 2 1 1 1/2 1 1 1 3 1 1/2 1/2 1 1
+Learn Mode 1 2 1 1 2 1/2 1/2 1 1/2 1/2 1/2 1/2 1/2 1/2 1 1/2 1/3 1/3 1/2 1/2
+Social Media 2 3 2 2 1 1 1 2 1 1 1/2 1 1 1 3 1 1/2 1/2 1 1
+English Skill 2 3 2 2 1 1 1 2 1 1 1/2 1 1 1 3 1 1/2 1/2 1 1
+Attendance 2 4 2 2 2 1 2 2 2 2 1 1 1 2 4 2 1 1 2 2
+Probation 2 3 2 2 1 1 1 2 1 1 1 1 1 1 3 1 1 1/2 1 2
+Consultancy 2 2 1 1 1 1 1 2 1 1 1 1 1 1 3 1 1/2 1/2 1 1
+Skill Hours 2 2 2 2 1 1 1 2 1 1 1/2 1 1 1 2 1 1/2 1/2 1 1
+Co Curricular 1 1 1 1 1/2 1/3 1/3 1 1/3 1/3 1/4 1/3 1/3 1/2 1 1/2 1/4 1/4 1/3 1/2
+Health Issues 2 2 2 2 2 1/2 1 2 1 1 1/2 1 1 1 2 1 1/2 1/2 1 1
+SGPA 3 4 3 3 2 2 2 3 2 2 1 1 2 2 4 2 1 1 2 3
+CGPA 3 3 3 3 2 2 2 3 2 2 1 2 2 2 4 2 1 1 2 3
+Credits 2 3 2 2 1 1 1 2 1 1 1/2 1 1 1 3 1 1/2 1/2 1 1
+Family Income 1 2 1 1 1 1/2 1 2 1 1 1/2 1/2 1 1 2 1 1/3 1/3 1 1
       `;
 
       const btn = document.getElementById('btn-autofill-ahp');
@@ -392,13 +530,10 @@
           .map(l => l.trim())
           .filter(l => l.length > 0);
 
-        if (lines.length < nCrit) {
-          console.warn("matrixText barisnya kurang dari jumlah kriteria", lines.length, nCrit);
-        }
-
         for (let idx = 0; idx < nCrit && idx < lines.length; idx++) {
           const ci = criteriaOrder[idx];
           const tokens = lines[idx].split(/\s+/);
+
           const nums = tokens.slice(-nCrit).map(parseVal);
           if (nums.length !== nCrit) {
             console.warn("Baris", ci, "tidak punya", nCrit, "angka:", tokens);
@@ -432,11 +567,24 @@
       });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      setupThemeToggle();
+    document.addEventListener('DOMContentLoaded', function () {
+      const current = root.dataset.theme === 'dark' ? 'dark' : 'light';
+      setIcon(current);
+
+      const btn = document.getElementById('themeToggle');
+      if (btn) {
+        btn.addEventListener('click', function () {
+          const now = root.dataset.theme === 'dark' ? 'dark' : 'light';
+          const next = now === 'dark' ? 'light' : 'dark';
+          setTheme(next);
+        });
+      }
+
       setupPairwiseSync();
       setupAutoFill();
     });
+  })();
   </script>
+
 </body>
 </html>

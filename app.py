@@ -8,6 +8,7 @@ from flask import (
     redirect,
     url_for,
     session,
+    send_from_directory,
 )
 from werkzeug.utils import secure_filename
 from sklearn.preprocessing import MinMaxScaler
@@ -100,6 +101,8 @@ TOPSIS_ATTR = {
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+EXPORT_DIR = os.path.join(BASE_DIR, "exports")
+os.makedirs(EXPORT_DIR, exist_ok=True)
 
 
 # =========================================
@@ -448,7 +451,7 @@ def cluster_and_label(norm_df, data):
     alt_cluster_df["Label"] = alt_cluster_df["Cluster"].map(label_map)
     alt_cluster_df = alt_cluster_df.set_index("Alternatif")
 
-    return need_index_df, alt_cluster_df
+    return need_index_df, alt_cluster_df, history
 
 
 # =========================================
@@ -466,15 +469,82 @@ def home():
         topsis_attr=TOPSIS_ATTR,
     )
 
+def _build_preview_vars(dataset_path):
+    try:
+        df_prev = pd.read_excel(dataset_path)
+        preview_columns = list(map(str, df_prev.columns))
+        df_head = df_prev.head(5)
+        preview_rows = (
+            df_head.astype(object)
+                  .where(pd.notnull(df_head), "")
+                  .to_dict(orient="records")
+        )
+        n_rows, n_cols = df_prev.shape
+        return {
+            "preview_columns": preview_columns,
+            "preview_rows": preview_rows,
+            "preview_shape": (int(n_rows), int(n_cols)),
+            "preview_filename": os.path.basename(dataset_path),
+            "preview_error": None,
+            "uploaded": True,   # <- flag dataset sudah diupload
+        }
+    except Exception as e:
+        return {
+            "preview_columns": [],
+            "preview_rows": [],
+            "preview_shape": None,
+            "preview_filename": None,
+            "preview_error": f"Gagal membaca file: {e}",
+            "uploaded": False,
+        }
+
+@app.route("/reset-dataset")
+def reset_dataset():
+    dataset_path = session.get("dataset_path")
+
+    # hapus file fisik kalau masih ada
+    if dataset_path and os.path.exists(dataset_path):
+        try:
+            os.remove(dataset_path)
+        except:
+            pass
+
+    # hapus session
+    session.pop("dataset_path", None)
+
+    # kembali ke halaman upload
+    return redirect(url_for("upload"))
 
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
     if request.method == "GET":
-        return render_template("upload.html", error=None)
-
+        dataset_path = session.get("dataset_path")
+        if dataset_path and os.path.exists(dataset_path):
+            preview_ctx = _build_preview_vars(dataset_path)
+        else:
+            preview_ctx = {
+                "preview_columns": [],
+                "preview_rows": [],
+                "preview_shape": None,
+                "preview_filename": None,
+                "preview_error": None,
+                "uploaded": False,
+            }
+        return render_template("upload.html", error=None, **preview_ctx)
+    
+    # POST
     file = request.files.get("dataset")
     if not file or file.filename == "":
-        return render_template("upload.html", error="Pilih file .xlsx terlebih dahulu")
+        return render_template(
+            "upload.html",
+            error="Pilih file .xlsx terlebih dahulu",
+            preview_columns=[],
+            preview_rows=[],
+            preview_shape=None,
+            preview_filename=None,
+            preview_error=None,
+            uploaded=False,
+        )
 
     filename = secure_filename(file.filename)
     dataset_path = os.path.join(UPLOAD_DIR, filename)
@@ -482,9 +552,22 @@ def upload():
 
     session["dataset_path"] = dataset_path
 
-    # setelah upload, langsung ke halaman AHP
-    return redirect(url_for("index"))
+    # setelah upload: TETAP di upload + tampilkan preview
+    preview_ctx = _build_preview_vars(dataset_path)
+    return render_template("upload.html", error=None, **preview_ctx)
 
+def _clear_uploaded_dataset():
+    """Hapus file dataset yang tersimpan dan bersihkan session."""
+    dataset_path = session.get("dataset_path")
+
+    if dataset_path and os.path.exists(dataset_path):
+        try:
+            os.remove(dataset_path)
+        except Exception:
+            # kalau gagal hapus file, abaikan saja supaya tidak bikin error
+            pass
+
+    session.pop("dataset_path", None)
 
 # Halaman AHP (input pairwise)
 @app.route("/ahp", methods=["GET", "POST"])
@@ -495,9 +578,7 @@ def index():
     except FileNotFoundError:
         return redirect(url_for("upload"))
 
-    # =========================
     # GET: tampilkan form AHP
-    # =========================
     if request.method == "GET":
         return render_template(
             "index.html",
@@ -506,10 +587,7 @@ def index():
             error=None,
         )
 
-    # =========================
     # POST: proses AHP + TOPSIS
-    # =========================
-
     # validasi SEMUA pairwise harus terisi (i<j)
     for i in range(len(CRITERIA)):
         for j in range(i + 1, len(CRITERIA)):
@@ -546,10 +624,14 @@ def index():
         })
 
     # clustering (tidak bergantung AHP, jadi tetap jalan)
-    need_index_df, alt_cluster_df = cluster_and_label(norm_df, data)
+    need_index_df, alt_cluster_df, kmeans_history = cluster_and_label(norm_df, data)
 
     # ====== JIKA CR TIDAK MEMENUHI < 0.1 → STOP DI SINI ======
     if CR_val >= 0.1:
+        session.pop("ranking_path", None)
+        # ⬇️ HAPUS DATASET SETELAH SELESAI PROSES
+        _clear_uploaded_dataset()
+
         return render_template(
             "result.html",
             ranking=[],
@@ -565,14 +647,20 @@ def index():
             raw_detail=None,
             score_detail=None,
             norm_detail=None,
+            kmeans_history=kmeans_history,
+            CRITERIA=CRITERIA,
+            CRITERIA_LABELS=CRITERIA_LABELS,
         )
 
     # ====== Lanjut TOPSIS HANYA kalau CR < 0.1 ======
     label_target = "Butuh Bimbingan Tinggi"
     high_alts = alt_cluster_df.index[alt_cluster_df["Label"] == label_target].tolist()
 
-    # kalau tidak ada alternatif target → tidak ada perhitungan TOPSIS
     if len(high_alts) == 0:
+        session.pop("ranking_path", None)
+        # ⬇️ HAPUS DATASET JUGA DI KASUS INI
+        _clear_uploaded_dataset()
+
         return render_template(
             "result.html",
             ranking=[],
@@ -588,12 +676,14 @@ def index():
             raw_detail=None,
             score_detail=None,
             norm_detail=None,
+            kmeans_history=kmeans_history,
+            CRITERIA=CRITERIA,
+            CRITERIA_LABELS=CRITERIA_LABELS,
         )
 
     # =========================
     # DATA ALTERNATIF BUTUH TINGGI
     # =========================
-    # data asli (setelah preprocessing, tapi belum skor asumsi)
     high_data = data.loc[high_alts, CRITERIA].copy()
 
     # skor asumsi 50–90 (Excel style)
@@ -605,7 +695,7 @@ def index():
         score_df, weights, benefit_flags
     )
 
-    # ====== DETAIL DATA ASLI per alternatif ======
+    # DETAIL DATA ASLI per alternatif (sudah encoded – ini yang dipakai TOPSIS)
     raw_detail = []
     for alt_id in high_alts:
         row = high_data.loc[alt_id]
@@ -621,7 +711,7 @@ def index():
             "values": row_vals,
         })
 
-    # ====== DETAIL SKOR ASUMSI (50–90) per alternatif ======
+    # DETAIL SKOR ASUMSI (50–90)
     score_detail = []
     for alt_id in high_alts:
         row = score_df.loc[alt_id]
@@ -637,7 +727,7 @@ def index():
             "values": row_vals,
         })
 
-    # ====== DETAIL NORMALISASI R_ij per alternatif ======
+    # DETAIL NORMALISASI R_ij
     norm_detail = []
     for i, alt_id in enumerate(high_alts):
         row_vals = []
@@ -652,7 +742,7 @@ def index():
             "values": row_vals,
         })
 
-    # ====== DETAIL V_ij (matriks terbobot ternormalisasi) ======
+    # DETAIL V_ij
     vij_detail = []
     for i, alt_id in enumerate(high_alts):
         row_vals = []
@@ -667,17 +757,17 @@ def index():
             "values": row_vals,
         })
 
-    # ====== DETAIL SOLUSI IDEAL (A+ dan A-) per kriteria ======
+    # SOLUSI IDEAL
     ideal_detail = []
     for i, crit in enumerate(CRITERIA):
         ideal_detail.append({
             "kriteria": crit,
             "label": CRITERIA_LABELS[crit],
-            "pos": float(ideal_pos[i]),  # A+
-            "neg": float(ideal_neg[i]),  # A-
+            "pos": float(ideal_pos[i]),
+            "neg": float(ideal_neg[i]),
         })
 
-    # ====== DISTANCE PER ALTERNATIF (D+ & D-) ======
+    # DISTANCE
     distance_detail = []
     for i, alt_id in enumerate(high_alts):
         distance_detail.append({
@@ -686,18 +776,16 @@ def index():
             "d_neg": float(D_neg[i]),
         })
 
-    # ====== RANKING TOPSIS (disortir Rank) ======
+    # RANKING
     rank_df = pd.DataFrame({
         "Alternatif": high_alts,
         "TOPSIS_Score": scores,
         "D_pos": D_pos,
         "D_neg": D_neg,
     })
-
     rank_df["Rank"] = rank_df["TOPSIS_Score"].rank(
         ascending=False, method="dense"
     ).astype(int)
-
     rank_df = rank_df.set_index("Alternatif")
     final_table = rank_df.join(alt_cluster_df[["Cluster", "Label"]], how="left")
     final_table = final_table.sort_values("Rank", ascending=True)
@@ -714,6 +802,21 @@ def index():
             "d_neg": float(row["D_neg"]),
         })
 
+    # SIMPAN RANKING KE EXCEL (tetap)
+    export_df = final_table.reset_index()
+    export_df.rename(columns={
+        "Alternatif": "Alternatif",
+        "TOPSIS_Score": "Skor_TOPSIS",
+        "D_pos": "D_plus",
+        "D_neg": "D_minus",
+    }, inplace=True)
+    ranking_path = os.path.join(EXPORT_DIR, "ranking_topsis.xlsx")
+    export_df.to_excel(ranking_path, index=False)
+    session["ranking_path"] = ranking_path
+
+    # ⬇️ SETELAH SEMUA PERHITUNGAN BERES, HAPUS DATASET
+    _clear_uploaded_dataset()
+
     return render_template(
         "result.html",
         ranking=ranking_json,
@@ -729,8 +832,33 @@ def index():
         raw_detail=raw_detail,
         score_detail=score_detail,
         norm_detail=norm_detail,
+        kmeans_history=kmeans_history,
+        CRITERIA=CRITERIA,
+        CRITERIA_LABELS=CRITERIA_LABELS,
     )
 
+@app.route("/download-dataset")
+def download_dataset():
+    data_dir = os.path.join(BASE_DIR, "data")
+    return send_from_directory(
+        data_dir,
+        "dataset.xlsx",
+        as_attachment=True
+    )
+
+@app.route("/panduan")
+def panduan():
+    return render_template("panduan.html")
+
+@app.route("/download-ranking")
+def download_ranking():
+    ranking_path = session.get("ranking_path")
+    if not ranking_path or not os.path.exists(ranking_path):
+        # kalau tidak ada file / session, balikin ke AHP saja
+        return redirect(url_for("index"))
+
+    directory, filename = os.path.split(ranking_path)
+    return send_from_directory(directory, filename, as_attachment=True)
 
 if __name__ == "__main__":
     app.run(debug=True)
